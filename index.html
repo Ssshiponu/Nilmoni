@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/alpine.js" defer></script>
+    <script src="js/tooltip.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/main.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/md.css">
+
+    <link rel="shortcut icon" href="assets/shipnai_logo.png" type="image/x-icon">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+
+<title>Shipon AI</title>
+</head>
+
+<body>
+    <div x-data="main()" class="stroke-gray-400 overflow-hidden text-sm">
+        <div class="bg-srone-50 height-dvh flex">
+
+            <!-- modal -->
+            <div @keydown.escape.window="modal = false" :class="{ 'z-40': modal }" class="relative w-auto h-auto">
+                <template x-teleport="body">
+                    <div x-show="modal"
+                        class="fixed top-0 left-0 z-[99] flex items-center justify-center w-screen h-screen" x-cloak>
+                        <div x-show="modal" x-transition:enter="ease-out duration-200"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                            x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0" @click="modal=false"
+                            class="absolute inset-0 w-full h-full bg-white/50 backdrop-blur-xs"></div>
+                        <div x-show="modal" x-transition:enter="ease-out duration-200"
+                            x-transition:enter-start="opacity-0 -translate-y-4 sm:scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                            x-transition:leave="ease-in duration-100"
+                            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                            x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
+                            class="relative bg-white shadow-xl border border-neutral-200 sm:w-auto min-w-80 max-w-xl rounded-xl overflow-hidden transition">
+                            <!-- content -->
+
+                            <div x-show="modalContent == 'settings'" class="min-h-96 max-w-[40rem] h-[32rem] sm:h-96 w-[calc(100vw-2rem)]">
+                                <button @click="modal=false"
+                                    class="absolute top-0 right-0 flex items-center justify-center w-8 h-8 mt-2 mr-2 text-gray-600 rounded-full hover:text-gray-800 hover:bg-gray-50">
+                                    <i data-lucide="x"></i>
+                                </button>
+
+                                <div
+                                x-data="{ tab: 'general',  tabs: { 'general': 'globe', 'advanced': 'settings', 'appearance': 'eye'} }"
+                                class="flex flex-col sm:flex-row sm:h-full">
+                                    <div class="w-full sm:w-48 sm:h-full h-auto bg-gray-50 sm:border-r border-b sm:border-b-0 border-neutral-200 p-4 pt-12 flex flex-col gap-2">
+                                        <template x-for="(icon, t) in tabs" :key="t">
+                                            <button @click="tab = t"
+                                                class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white border border-gray-50 transition"
+                                                :class="{ 'bg-white border-neutral-200': tab == t }">
+                                                <i :data-lucide="icon" class="w-5 h-5"></i>
+                                                <span class="text-sm text-gray-700 capitalize" x-text="t"></span>
+                                            </button>
+                                        </template>
+                                        
+                                    </div>
+                                    <div class="flex-1 h-full px-4 py-6 sm:py-8 overflow-y-auto scrollbar-thin">
+                                        <div x-show="tab == 'general'">
+                                            <p for="" class="text-gray-500 text-xs">Language</p>
+                                            <div x-data="{ 
+                                                open: false,
+                                                options: ['English', 'Bangla', 'Hindi'],
+                                                selected: 'English',
+                                            }" class="relative mt-1">
+                                                <div @click="open = !open" class="btn py-1.5 px-2 w-40 flex items-center mt-2">
+                                                    <div class="flex items-center justify-between w-full">
+                                                    <span x-text="selected" class="font-normal"></span>
+                                                    <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
+                                                    </div>
+                                                </div>
+                                                <!-- dropdown -->
+                                                <div x-show="open" @click.outside="open=false" x-transition class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50" style="display: none;">
+                                                    <template x-for="option in options" :key="option">
+                                                        <button @click="open=false; selected=option" class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
+                                                            <span x-text="option"></span>
+                                                            <i data-lucide="check" x-show="selected == option" class="w-4 h-4 stroke-green-500" style="display: none;"></i>
+                                                        </button>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div x-show="tab == 'appearance'">
+                                            <p for="" class="text-gray-500 text-xs">Theme</p>
+                                            <div x-data="{ open: false, options: ['Light', 'Dark'], selected: 'Light' }" class="relative mt-1">
+                                                <div @click="open = !open" class="btn py-1.5 px-2 w-40 flex items-center mt-2">
+                                                    <div class="flex items-center justify-between w-full">
+                                                        <span x-text="selected" class="font-normal"></span>
+                                                        <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
+                                                    </div>
+                                                </div>
+                                                <!-- dropdown -->
+                                                <div x-show="open" @click.outside="open=false" x-transition class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50" style="display: none;">
+                                                    <template x-for="option in options" :key="option">
+                                                        <button @click="open=false; selected=option" class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
+                                                            <span x-text="option"></span>
+                                                            <i data-lucide="check" x-show="selected == option" class="w-4 h-4 stroke-green-500" style="display: none;"></i>
+                                                        </button>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div x-show="tab == 'advanced'">
+                                            <p for="" class="text-gray-500 text-xs">Model</p>
+                                            <div x-data="{ open: false, options: ['GPT-3.5', 'GPT-4'], selected: 'GPT-3.5' }" class="relative mt-1">
+                                                <div @click="open = !open" class="btn py-1.5 px-2 w-40 flex items-center mt-2">
+                                                    <div class="flex items-center justify-between w-full">
+                                                        <span x-text="selected" class="font-normal"></span>
+                                                        <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
+                                                    </div>
+                                                </div>
+                                                <!-- dropdown -->
+                                                <div x-show="open" @click.outside="open=false" x-transition class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50" style="display: none;">
+                                                    <template x-for="option in options" :key="option">
+                                                        <button @click="open=false; selected=option" class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
+                                                            <span x-text="option"></span>
+                                                            <i data-lucide="check" x-show="selected == option" class="w-4 h-4 stroke-green-500" style="display: none;"></i>
+                                                        </button>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div x-show="modalContent == 'rename'"
+                                class="flex flex-col p-6 w-80 sm:w-96">
+                                <h4 class="mb-4"><i data-lucide="info" class="w-4 h-4 stroke-neutral-900 inline-block mr-2"></i>Rename chat</h4>
+                                <input type="text" id="chatName" placeholder="Chat name" class="w-full border border-neutral-300 rounded-lg px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-neutral-200">
+                                <div class="flex items-center justify-end gap-4">
+                                    <div @click="modal = false" class="btn rounded-full">
+                                        Cancel
+                                    </div>
+                                    <div @click="modal = false" class="btn btn-black rounded-full">
+                                        Rename
+                                    </div>
+                                </div>
+                                   
+                            </div>
+                            
+                            <div x-show="modalContent == 'share'"
+                                class="flex flex-col p-6 w-80 sm:w-96">
+                                <h4 class="mb-4"><i data-lucide="info" class="w-4 h-4 stroke-neutral-900 inline-block mr-2"></i>Share this chat</h4>
+                                <input type="text" id="shareLink" value="https://example.com/chat/123" class="w-full border border-neutral-300 bg-neutral-50 rounded-lg px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-neutral-200" disabled>
+                                <div class="flex items-center justify-end gap-4">
+                                    <div @click="modal = false" class="btn rounded-full">
+                                        Cancel
+                                    </div>
+                                    <div @click="modal = false" class="btn btn-black rounded-full">
+                                        <i data-lucide="copy" class="w-4 h-4 stroke-white inline-block mr-2"></i>Copy
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div x-show="modalContent == 'confirm'"
+                                class="flex flex-col p-6 w-80 sm:w-96">
+                                <h4 class="mb-4"><i data-lucide="info" class="w-4 h-4 stroke-red-500 inline-block mr-2"></i>Delete chat?</h4>
+                                <p class="mb-6 text-gray-500">Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis, assumenda?</p>
+                                <div class="flex items-center justify-end gap-4">
+                                    <div @click="modal = false" class="btn rounded-full">
+                                        Cancel
+                                    </div>
+                                    <div @click="modal = false" class="btn btn-red rounded-full">
+                                        Delete
+                                    </div>
+                                </div>
+                                   
+                            </div>
+
+                            <div x-show="modalContent == 'plans'"
+                                class="flex flex-col p-6 w-80 sm:w-96">
+                                <h2 class="text-3xl font-medium text-center text-neutral-900 mb-4">Topper</h2>
+                                <!-- pricing -->
+                                <div class="flex items-center justify-center">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-3xl font-medium text-neutral-900">৳500</span>
+                                        <span class="text-sm text-neutral-500">/ month</span>
+                                    </div>
+                                </div>
+
+                                <!-- features -->
+                                <div class="mt-4 p-4">
+                                    <ul class="list-inside">
+                                        <li><i data-lucide="check" class="inline stroke-green-500 mr-3"></i>More accurate responses</li>
+                                        <li><i data-lucide="check" class="inline stroke-green-500 mr-3"></i>Access to advanced models</li>
+                                        <li><i data-lucide="check" class="inline stroke-green-500 mr-3"></i>50 Chat per day</li>
+                                    </ul>
+                                </div>
+                                <button class="btn btn-black rounded-full py-2 px-5 text-lg font-medium m-6">Get started</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div @keydown.escape.window="sidebar = false" @click="sidebar = false" x-show="sidebar" class="md:hidden absolute inset-0 w-full h-full bg-white/50 backdrop-blur-xs z-20" style="display: none;"></div>
+
+            <aside class="absolute w-0 overflow-hidden md:static flex flex-col bg-white h-full border-r border-gray-300 z-30 transition-all duration-300"
+                :class="{ 'w-0': !sidebar, 'w-64': sidebar }"
+                >
+                <div class="flex items-center p-3 gap-3">
+                    <a href="/"><img src="assets/shipnai_logo.png" alt="Shipon AI logo" width="20" height="20"></a>
+                    <h1 class="text-xl text-neutral-900 text-nowrap font-semibold">Shipon AI</h1>
+                </div>
+                <div>
+                    <button class="mx-3 w-auto flex items-center justify-center gap-2 p-2 pr-4 hover:bg-gray-100 active:bg-gray-200 rounded-full text-sm">
+                        <div class="p-1 bg-black rounded-full ">
+                            <i data-lucide="plus" class="!stroke-white w-4 h-4 stroke-3"></i>
+                        </div>
+                        <span class="text-gray-600 text-sm text-nowrap">New chat</span>
+                    </button>
+                </div>
+
+                <div class="flex-1 px-3 mt-4 overflow-y-auto scrollbar-thin">
+                    <p class="text-gray-400 text-sm mb-4 ml-3 text-nowrap">All Chats</p>
+                    <div class="flex flex-col gap-1">
+                        <template x-for="n in 20" :key="n">
+                            <div 
+                            x-data="{ open: false }"
+                            class="group relative pl-3 p-2 rounded-full hover:bg-gray-50 cursor-pointer active:bg-gray-100 flex transition-all">
+                                <p class="flex-1 text-sm text-gray-700 line-clamp-1">This is a long chat name has been truncated</p>
+                                <button @click="open = !open" class="md:hidden cursor-pointer w-7 h-7 -m-1 group-hover:flex flex items-center justify-center bg-white hover:bg-gray-50 border ring-offset-2 focus:ring-2 focus:ring-neutral-200 border-neutral-200 rounded-full">
+                                    <i data-lucide="ellipsis" class="w-4 h-4"></i>
+                                </button>
+                                <!-- dropdown -->
+                                <div x-show="open" @click.outside="open=false" x-transition class="absolute right-0 top-8 mt-2 p-1 w-32 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50" style="display: none;">
+                                    <button @click="open=false; modal = true; modalContent = 'rename'" class="w-full text-left px-2.5 py-1.5 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                                        <i data-lucide="edit" class="w-4 h-4 inline-block mr-2"></i>
+                                        Rename
+                                    </button>
+                                    
+                                    <button @click="open=false; modal = true; modalContent = 'confirm'" class="w-full text-left px-2.5 py-1.5 rounded-md text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
+                                        <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2 stroke-current"></i>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="relative m-2" x-data="{ open: false }">
+                    <div @click="open = !open" class="p-2 rounded-xl bg-neutral-50 hover:bg-gray-100 cursor-pointer flex items-center justify-between select-none">
+                        <div class="flex items-center">
+                            <img class="w-10 h-10 rounded-full mr-2 object-cover" src="https://api.dicebear.com/9.x/notionists-neutral/svg?seed=George" alt="">
+                            <div>
+                                <h4 class="font-medium text-gray-700 line-clamp-1 -mb-1">Mohin Uddin</h4>
+                                <span class="text-green-500 text-xs text-nowrap">Topper</span>
+                            </div>
+                        </div>
+                        <i data-lucide="chevrons-up-down"></i>
+                    </div>
+                    <!-- dropdown -->
+
+                    <div x-show="open" @click.outside="open=false" x-transition class="absolute right-0 bottom-18 mt-2 p-1 w-60 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50" style="display: none;">
+                        <div class="px-3 py-2 text-gray-800 text-sm">name@email.com</div>
+                        <div class="border-t border-neutral-200 m-1"></div>
+                        <button @click="open=false; modal = true; modalContent='plans' " class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                            <i data-lucide="circle-fading-arrow-up" class="w-4 h-4 inline-block mr-2"></i>
+                            Upgrade Plan
+                        </button>
+                        <button @click="open=false; modal = true; modalContent='settings'" class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                            <i data-lucide="settings" class="w-4 h-4 inline-block mr-2"></i>
+                            Settings
+                        </button>
+                        <div class="border-t border-neutral-200 m-1"></div>
+                        <button class="w-full text-left px-3 py-2 rounded-md text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
+                            <i data-lucide="log-out" class="w-4 h-4 inline-block mr-2 stroke-current"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="flex flex-col height-dvh flex-1 relative">
+                <header class="relative w-full p-3 flex items-center justify-between border-b border-white transition-all duration-300 bg-white">
+                    <div class="flex items-center gap-2">
+                        <button @click="sidebar = !sidebar" class="btn border-none p-2">
+                            <i x-show="!sidebar" data-lucide="menu"></i>
+                            <i x-show="sidebar" data-lucide="chevrons-left"></i>
+                        </button>
+                    </div>
+                    <h1 class="text-xl text-neutral-900 font-semibold">Shipon AI</h1>
+                    <div x-data="{ open: false }" class="flex items-center gap-0 relative">
+                        <button @click="open = !open" class="btn p-2 border-none">
+                            <i data-lucide="ellipsis" class="w-5 h-5 stroke-gray-500"></i>
+                        </button>
+                        <!-- dropdown -->
+                        <div x-show="open" @click.outside="open=false" x-transition class="absolute right-2 top-9 mt-2 p-1 w-36 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50" style="display: none;">
+                            <button class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                                <i data-lucide="circle-plus" class="w-4 h-4 inline-block mr-2"></i>
+                                New chat
+                            </button>
+                            <button @click="open=false; modal = true; modalContent='share'" class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                                <i data-lucide="Share" class="w-4 h-4 inline-block mr-2"></i>
+                                Share
+                            </button>
+                            <button @click="open=false; modal = true; modalContent = 'confirm'" class="w-full text-left px-3 py-2 rounded-md text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
+                                <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2 stroke-current"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- messages container -->
+                <div id="chat" class="flex-1 w-full overflow-y-auto pb-4 scrollbar">
+                    <div class="max-w-[46rem] mx-auto mb-36 text-gray-800">
+                        <div class="space-y-8 pt-8 p-4">
+                            <div class="max-w-lg">
+                                <div class="inline-block bg-gray-100 py-2 px-4 rounded-[18px] rounded-tl-sm font-sans">Describe how AI works</div>
+                            </div>
+                            <div id="reply" class="markdown-body" data-theme="dark">
+                                
+                                
+<p>Artificial intelligence (AI) encompasses a broad range of techniques and algorithms that enable machines to simulate human-like intelligence. At its core, AI works by processing vast amounts of data, identifying patterns, and making decisions or predictions based on those patterns.</p>
+<p>Here&#39;s a simplified breakdown of how AI generally works:</p>
+<p><strong>1. Data Collection and Preparation:</strong>
+The first step in any AI system is to gather relevant data. This data can come in various forms: images, text, audio, sensor readings, etc. The quality and quantity of this data are crucial for the AI&#39;s performance. Once collected, the data is preprocessed, which involves cleaning, transforming, and formatting it to be suitable for the AI model.</p>
+<p><strong>2. Algorithm Selection and Model Training:</strong>
+Different AI tasks require different algorithms. For example, if you want an AI to recognize objects in images, you might use a convolutional neural network (CNN). If you&#39;re building a system to predict stock prices, you might use a recurrent neural network (RNN) or a regression model.</p>
+<p>During the &quot;training&quot; phase, the chosen algorithm is fed the prepared data. The algorithm then learns from this data by adjusting its internal parameters (weights and biases) to minimize errors in its predictions or classifications. It&#39;s like a student learning from examples – the more examples it sees, and the more feedback it gets on its mistakes, the better it becomes.</p>
+<p>For instance, if you&#39;re training an AI to identify cats, you&#39;d show it thousands of images labeled &quot;cat&quot; and &quot;not cat.&quot; The AI would gradually learn to identify features associated with cats.</p>
+<p><strong>3. Model Evaluation:</strong>
+After training, the AI model needs to be evaluated to see how well it performs on new, unseen data. This is crucial to ensure that the model hasn&#39;t simply memorized the training data but has truly learned generalizable patterns. If the model performs poorly on new data, it might need further training, more data, or a different algorithm.</p>
+<p><strong>4. Deployment and Inference:</strong>
+Once the model is trained and evaluated, it can be deployed for real-world use. In this &quot;inference&quot; phase, the AI model receives new input data (e.g., a new image, a new voice command) and uses its learned patterns to make predictions, classifications, or decisions in real-time.</p>
+<p><strong>Key Concepts in AI:</strong></p>
+<ul>
+<li><strong>Machine Learning (ML):</strong> A subset of AI that focuses on building systems that learn from data without being explicitly programmed. This is where most of the &quot;learning&quot; happens.</li>
+<li><strong>Deep Learning (DL):</strong> A subfield of machine learning that uses artificial neural networks with multiple layers (hence &quot;deep&quot;) to learn complex patterns. Deep learning has been particularly successful in areas like image recognition, natural language processing, and speech recognition.</li>
+<li><strong>Neural Networks:</strong> Inspired by the human brain, these are interconnected layers of &quot;neurons&quot; that process information. Each connection has a weight, and during training, these weights are adjusted to optimize the network&#39;s output.</li>
+<li><strong>Natural Language Processing (NLP):</strong> Enables computers to understand, interpret, and generate human language.</li>
+<li><strong>Computer Vision:</strong> Allows computers to &quot;see&quot; and interpret visual information from images and videos.</li>
+</ul>
+
+
+
+
+                            </div>
+                            <div x-data="replyActions()">
+                                <div class="flex items-center gap-2 mt-4 mb-8">
+                                    <button @click="copied()" x-tooltip="Copy" class="btn btn-circle border-transparent ring-transparent"><i x-show="!copy" data-lucide="copy"
+                                            class="w-4 h-4"></i><i x-show="copy" data-lucide="copy-check" class="w-4 h-4 stroke-green-500"></i></button>
+                                    <button @click="like = !like; dislike = false" x-tooltip="Like" class="btn btn-circle border-transparent ring-transparent"><i data-lucide="thumbs-up"
+                                            class="w-4 h-4" :class="{'stroke-green-500': like}"></i></button>
+                                    <button @click="dislike = !dislike; like = false" x-tooltip="Dislike" class="btn btn-circle border-transparent ring-transparent"><i data-lucide="thumbs-down"
+                                            class="w-4 h-4" :class="{'stroke-red-500': dislike}"></i></button>
+                                    <button x-tooltip="Regenerate" class="btn btn-circle border-transparent ring-transparent"><i data-lucide="rotate-ccw"
+                                            class="w-4 h-4"></i></button>
+
+                                    <button @click="modal = true; modalContent = 'share'" x-tooltip="Share" class="btn btn-circle border-transparent ring-transparent"><i data-lucide="share"
+                                            class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- input container -->
+                <div class="input-container-gradient w-full p-3 pt-8 max-w-[48rem] mx-auto absolute bottom-0 left-1/2 -translate-x-1/2">
+                    <div x-data="input()"
+                        class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-neutral-300 rounded-2xl p-3 w-full flex flex-col gap-2">
+                        <div>
+                            <div class="w-full max-w-xl">
+                                <textarea x-data="{ 
+                                            resize () { 
+                                                $el.style.height = '0px'; 
+                                                $el.style.height = $el.scrollHeight + 'px' 
+                                            } 
+                                        }"
+                                        x-init="resize()"
+                                        @input="resize()"
+                                        @keydown.enter="post()"
+                                        type="text"
+                                        id="prompt"
+                                        x-model="prompt"
+                                        placeholder="Ask me anything..." 
+                                        class="flex w-full h-auto min-h-[36px] max-h-[200px] px-3 py-2 text-sm bg-white focus:outline-none focus:ring-0 resize-none"
+                                ></textarea>
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="flex py-1">
+                                <!-- files preview -->
+                                <div class="flex flex-wrap items-center gap-1">
+                                    <template x-for="(f, i) in files" :key="f.id">
+                                        <div x-init="lucide.createIcons()" class="flex items-center gap-1 bg-neutral-100 text-xs text-neutral-500 rounded-full px-2 mb-1">
+                                            <div class="flex items-center gap-2">
+                                            <i data-lucide="file" class="w-4 h-4"></i>
+                                            
+                                            <span x-text="f.name" class="max-w-[160px] truncate"></span>
+                                            <button type="button" @click="removeFile(i)" class="ml-1" aria-label="Remove file">
+                                                <span class="text-neutral-500 text-xl">&times;</span>
+                                            </button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex gap-3">
+                                    <div class="flex items-center gap-2 relative">
+                                        <!-- attach file -->
+                                        <input x-ref="fileInput" type="file" id="fileInput" accept="image/*,application/pdf,.txt" multiple
+                                            class="hidden" @change="addFiles($event)">
+                                        <button type="button" x-tooltip="Attach file" class="btn btn-circle" @click="$refs.fileInput.click()">
+                                            <i data-lucide="plus" class="w-4 h-4"></i>
+                                        </button>
+                                        <!-- select tool -->
+                                        <div class="relative">
+                                            <button type="button" x-tooltip="Select toot" class="btn btn-circle flex gap-1.5 transition-transform max-w-[200px]" @click="showTools = !showTools; lucide.createIcons()">
+                                                <i data-lucide="settings-2" class="w-4 h-4"></i>
+                                                <div x-show="selectedTool" class="flex items-center " x-transition>
+                                                    <span class="text-green-500 font-normal text-sm pl-1.5 border-l border-neutral-200 text-nowrap overflow-hidden" x-text="selectedTool?.name"></span>
+                                                    <div @click="selectedTool = null" class="ml-2 flex items-center z-10" title="Remove tool">
+                                                        <i data-lucide="x" class="w-4 h-4 inline-block"></i>
+                                                    </div>
+                                                </div>
+                                            </button>
+
+                                            <!-- dropdown -->
+                                            <div x-show="showTools" @click.outside="showTools=false" x-transition class="absolute left-0 bottom-10 mt-2 p-1 w-48 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50" style="display: none;">
+                                                <button @click="showTools=false; modal = true; modalContent = 'settings' " class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                                                    <i data-lucide="settings" class="w-4 h-4 inline-block mr-2"></i>
+                                                    Settings
+                                                </button>
+                                                <div class="border-t border-neutral-200 m-1"></div>
+                                                <div>
+                                                    <template x-for="tool in tools" :key="tool.id">
+                                                        <button @click="selectedTool = tool; showTools=false;" class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                                                            <i :data-lucide="tool.icon" class="w-4 h-4 inline-block mr-2"></i>
+                                                            <span x-text="tool.name"></span>
+                                                        </button>
+                                                    </template>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <!-- enhance prompt -->
+                                    <button x-tooltip="Enhance prompt" class="btn btn-circle border-transparent ring-transparent"><i data-lucide="stars"
+                                            class="w-4 h-4"></i></button>
+                                    <!-- generate -->
+                                    <button x-tooltip="Generate/Stop (ctrl+enter)" class="btn btn-black btn-circle ring-transparent" :class="{'bg-neutral-100': isLoading}" @click="isLoading = !isLoading; console.log(api.get('103.43.54.123'))"> 
+                                        <i data-lucide="arrow-up" x-show="!isLoading" class="!stroke-white"></i>
+                                        <i data-lucide="loader" x-show="isLoading" class="animate-spin !stroke-neutral-800"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+
+
+        </div>
+    </div>
+
+
+    <script src="js/lucide.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.effect(() => {
+                Alpine.nextTick(() => {
+                    lucide.createIcons();
+                });
+            });
+        });
+
+    </script>
+</body>
+
+</html>
