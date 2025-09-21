@@ -1,586 +1,555 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="js/alpine.js" defer></script>
-    <script src="js/tooltip.js"></script>
-    <script src="js/input.js"></script>
-    <script src="js/main.js"></script>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/md.css">
-
-    <link rel="shortcut icon" href="assets/diamond.png" type="image/x-icon">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
-        rel="stylesheet">
-
-    <title>Nilmoni</title>
-</head>
-
-<body>
-    <div x-data="main()" class="stroke-gray-400 overflow-hidden">
-        <div class="bg-srone-50 height-dvh flex">
-
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <script src="js/alpine.js" defer></script>
+      <script src="js/tooltip.js"></script>
+      <script src="js/input.js"></script>
+      <script src="js/main.js"></script>
+      <link rel="stylesheet" href="css/main.css">
+      <link rel="stylesheet" href="css/md.css">
+      <link rel="shortcut icon" href="assets/diamond.png" type="image/x-icon">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+         rel="stylesheet">
+      <title>Nilmoni</title>
+   </head>
+   <body>
+      <div x-data="main()" class="stroke-gray-400 overflow-hidden">
+         <div class="bg-srone-50 height-dvh flex">
             <!-- modal -->
             <div @keydown.escape.window="modal = false" :class="{ 'z-40': modal }" class="relative w-auto h-auto">
-                <template x-teleport="body">
-                    <div x-show="modal"
-                        class="fixed top-0 left-0 z-[99] flex items-center justify-center w-screen h-screen" x-cloak>
-                        <div x-show="modal" x-transition:enter="ease-out duration-200"
-                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                            x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0" @click="modal=false"
-                            class="absolute inset-0 w-full h-full bg-white/50 backdrop-blur-xs"></div>
-                        <div x-show="modal" x-transition:enter="ease-out duration-200"
-                            x-transition:enter-start="opacity-0 -translate-y-4 sm:scale-95"
-                            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                            x-transition:leave="ease-in duration-100"
-                            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                            x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
-                            class="relative bg-white shadow-xl border border-neutral-200 sm:w-auto min-w-80 max-w-xl rounded-xl overflow-hidden transition-all">
-                            <!-- content -->
-
-                            <div x-show="modalContent == 'settings'"
-                                class="min-h-96 max-w-[40rem] h-[32rem] sm:h-96 w-[calc(100vw-2rem)]">
-                                <button @click="modal=false"
-                                    class="absolute top-0 right-0 flex items-center justify-center w-8 h-8 mt-2 mr-2 text-gray-600 rounded-full hover:text-gray-800 hover:bg-gray-50">
-                                    <i data-lucide="x"></i>
-                                </button>
-
-                                <div x-data="{ tab: 'general',  tabs: { 'general': 'globe', 'advanced': 'settings', 'appearance': 'eye'} }"
-                                    class="flex flex-col sm:flex-row h-full">
-                                    <div
-                                        class="w-full sm:w-48 sm:h-full h-auto bg-gray-50 sm:border-r border-b sm:border-b-0 border-neutral-200 p-4 pt-12 flex flex-col gap-2">
-                                        <template x-for="(icon, t) in tabs" :key="t">
-                                            <button @click="tab = t"
-                                                class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white border border-gray-50 transition"
-                                                :class="{ 'bg-white border-neutral-200': tab == t }">
-                                                <i :data-lucide="icon" class="w-5 h-5"></i>
-                                                <span class="text-sm text-gray-700 capitalize" x-text="t"></span>
-                                            </button>
-                                        </template>
-
-                                    </div>
-                                    <div class="flex-1 h-full px-4 py-6 sm:py-8 overflow-y-auto scrollbar-thin">
-                                        <div x-show="tab == 'general'">
-                                            <p for="" class="text-gray-500 text-xs">Language</p>
-                                            <div x-data="{ 
-                                                open: false,
-                                                options: ['English', 'Bangla', 'Hindi'],
-                                                selected: 'English',
-                                            }" class="relative mt-1">
-                                                <div @click="open = !open"
-                                                    class="btn py-1.5 px-2 w-40 flex items-center mt-2">
-                                                    <div class="flex items-center justify-between w-full">
-                                                        <span x-text="selected" class="font-normal"></span>
-                                                        <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
-                                                    </div>
-                                                </div>
-                                                <!-- dropdown -->
-                                                <div x-show="open" @click.outside="open=false" x-transition
-                                                    class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50"
-                                                    style="display: none;">
-                                                    <template x-for="option in options" :key="option">
-                                                        <button @click="open=false; selected=option"
-                                                            class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
-                                                            <span x-text="option"></span>
-                                                            <i data-lucide="check" x-show="selected == option"
-                                                                class="w-4 h-4 stroke-blue-500"
-                                                                style="display: none;"></i>
-                                                        </button>
-                                                    </template>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div x-show="tab == 'appearance'">
-                                            <p for="" class="text-gray-500 text-xs">Theme</p>
-                                            <div x-data="{ open: false, options: ['Light', 'Dark'], selected: 'Light' }"
-                                                class="relative mt-1">
-                                                <div @click="open = !open"
-                                                    class="btn py-1.5 px-2 w-40 flex items-center mt-2">
-                                                    <div class="flex items-center justify-between w-full">
-                                                        <span x-text="selected" class="font-normal"></span>
-                                                        <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
-                                                    </div>
-                                                </div>
-                                                <!-- dropdown -->
-                                                <div x-show="open" @click.outside="open=false" x-transition
-                                                    class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50"
-                                                    style="display: none;">
-                                                    <template x-for="option in options" :key="option">
-                                                        <button @click="open=false; selected=option"
-                                                            class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
-                                                            <span x-text="option"></span>
-                                                            <i data-lucide="check" x-show="selected == option"
-                                                                class="w-4 h-4 stroke-blue-500"
-                                                                style="display: none;"></i>
-                                                        </button>
-                                                    </template>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div x-show="tab == 'advanced'">
-                                            <p for="" class="text-gray-500 text-xs">Model</p>
-                                            <div x-data="{ open: false, options: ['GPT-3.5', 'GPT-4'], selected: 'GPT-3.5' }"
-                                                class="relative mt-1">
-                                                <div @click="open = !open"
-                                                    class="btn py-1.5 px-2 w-40 flex items-center mt-2">
-                                                    <div class="flex items-center justify-between w-full">
-                                                        <span x-text="selected" class="font-normal"></span>
-                                                        <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
-                                                    </div>
-                                                </div>
-                                                <!-- dropdown -->
-                                                <div x-show="open" @click.outside="open=false" x-transition
-                                                    class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50"
-                                                    style="display: none;">
-                                                    <template x-for="option in options" :key="option">
-                                                        <button @click="open=false; selected=option"
-                                                            class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
-                                                            <span x-text="option"></span>
-                                                            <i data-lucide="check" x-show="selected == option"
-                                                                class="w-4 h-4 stroke-blue-500"
-                                                                style="display: none;"></i>
-                                                        </button>
-                                                    </template>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div x-show="modalContent == 'rename'" class="flex flex-col p-6 w-80 sm:w-96">
-                                <h4 class="mb-4"><i data-lucide="info"
-                                        class="w-4 h-4 stroke-neutral-900 inline-block mr-2"></i>Rename chat</h4>
-                                <input type="text" id="chatName" placeholder="Chat name"
-                                    class="w-full border border-neutral-300 rounded-lg px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-neutral-200">
-                                <div class="flex items-center justify-end gap-4">
-                                    <div @click="modal = false" class="btn rounded-full">
-                                        Cancel
-                                    </div>
-                                    <div @click="modal = false" class="btn btn-black rounded-full">
-                                        Rename
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div x-show="modalContent == 'share'" class="flex flex-col p-6 w-80 sm:w-96">
-                                <h4 class="mb-4"><i data-lucide="share-2"
-                                        class="w-4 h-4 stroke-neutral-900 inline-block mr-2"></i>Share this chat</h4>
-                                <input type="text" id="shareLink" value="https://example.com/chat/123"
-                                    class="w-full border border-neutral-300 bg-neutral-50 rounded-lg px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-neutral-200"
-                                    disabled>
-                                <div class="flex items-center justify-end gap-4">
-                                    <div @click="modal = false" class="btn rounded-full">
-                                        Cancel
-                                    </div>
-                                    <div @click="modal = false" class="btn btn-black rounded-full">
-                                        <i data-lucide="copy" class="w-4 h-4 stroke-white inline-block mr-2"></i>Copy
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div x-show="modalContent == 'confirm'" class="flex flex-col p-6 w-80 sm:w-96">
-                                <h4 class="mb-4"><i data-lucide="info"
-                                        class="w-4 h-4 stroke-red-500 inline-block mr-2"></i>Delete chat?</h4>
-                                <p class="mb-6 text-gray-500">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                    Officiis, assumenda?</p>
-                                <div class="flex items-center justify-end gap-4">
-                                    <div @click="modal = false" class="btn rounded-full">
-                                        Cancel
-                                    </div>
-                                    <div @click="modal = false" class="btn btn-red rounded-full">
-                                        Delete
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div x-show="modalContent == 'upload-alert'" class="flex flex-col p-6 w-80 sm:w-96">
-                                <h4 class="mb-4"><i data-lucide="file-x"
-                                        class="w-4 h-4 stroke-red-500 inline-block mr-2"></i>Can't upload</h4>
-                                <p class="mb-6 text-gray-500">You can upload only 3 file in Free plane. <span
-                                        @click="modal=true; modalContent='plans'" class="link">Upgrade plane</span> to
-                                    upload more</p>
-                                <div class="flex items-center justify-end gap-4">
-                                    <div @click="modal = false" class="btn rounded-full">
-                                        Cancel
-                                    </div>
-                                    <div @click="modal=true; modalContent='plans'" class="btn btn-blue rounded-full">
-                                        Upgrade
-                                    </div>
-                                </div>
-                            </div>
-
-
-
-                            <div x-show="modalContent == 'plans'" class="flex flex-col p-6 w-80 sm:w-96">
-                                <h2 class="text-3xl font-semibold text-center text-neutral-900 mb-4">Topper <span
-                                        class="text-black underline">Plan</span></h2>
-                                <!-- pricing -->
-                                <div class="flex items-center justify-center">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-3xl font-medium text-neutral-900">৳500</span>
-                                        <span class="text-sm text-neutral-500">/ month</span>
-                                    </div>
-                                </div>
-
-                                <!-- features -->
-                                <div class="mt-4 p-4">
-                                    <ul class="list-inside">
-                                        <li><i data-lucide="check" class="inline stroke-blue-500 mr-3"></i>More
-                                            accurate responses</li>
-                                        <li><i data-lucide="check" class="inline stroke-blue-500 mr-3"></i>Access to
-                                            advanced models</li>
-                                        <li><i data-lucide="check" class="inline stroke-blue-500 mr-3"></i>50 Chat per
-                                            day</li>
-                                    </ul>
-                                </div>
-                                <button class="btn btn-black rounded-full py-2 px-5 text-lg font-medium m-6">Get
-                                    started</button>
-                            </div>
-
-                        </div>
-                    </div>
-                </template>
-            </div>
-
-            <div @keydown.escape.window="sidebar = false" @click="sidebar = false" x-show="sidebar"
-                class="md:hidden absolute inset-0 w-full h-full bg-white/50 backdrop-blur-xs z-20"
-                style="display: none;"></div>
-
-            <aside
-                class="absolute w-0 overflow-hidden md:static flex flex-col bg-white h-full border-r border-gray-300 z-30 transition-all duration-100"
-                :class="{ 'w-0': !sidebar, 'w-64': sidebar }">
-                <a href="/">
-                    <div class="flex items-center p-4 gap-2">
-                        <img src="assets/diamond.png" alt="Nilmoni logo"
-                                width="28" height="28">
-                        <h2 class="text-xl text-neutral-900 text-nowrap font-semibold">Nilmoni</h2>
-                    </div>
-                </a>
-                <div> <button @click="selectedConversation=null; closeSidebar()"
-                        class="mx-3 w-auto flex items-center justify-center gap-2 p-2 pr-4 hover:bg-gray-100 active:bg-gray-200 rounded-full text-sm">
-                        <i data-lucide="pen-line"
-                                class="w-4 h-4"></i><span
-                            class="text-gray-600 text-sm text-nowrap">New chat</span>
-                    </button> </div>
-                <div class="flex-1 px-3 mt-4 overflow-y-auto scrollbar-thin">
-                    <p class="text-gray-400 text-sm mb-4 ml-3 text-nowrap">All Chats</p>
-                    <div class="flex flex-col gap-2"> <template x-for="conversation in conversations" :key="conversation.id">
-                            <div x-data="{ open: false }"
-                                class="group relative items-center rounded-full hover:bg-gray-50 cursor-pointer active:bg-gray-100 flex transition-all">
-                                <p @click="selectedConversation = conversation.id; closeSidebar()" x-text="conversation.title" class="flex-1 pl-3 py-2 text-sm text-gray-700 line-clamp-1"></p>
-                                <button @click="open = !open"
-                                    class="md:hidden cursor-pointer w-7 h-7 m-1 group-hover:flex flex items-center justify-center bg-white hover:bg-gray-50 border ring-offset-2 focus:ring-2 focus:ring-neutral-200 border-neutral-200 rounded-full">
-                                    <i data-lucide="ellipsis" class="w-4 h-4"></i> </button> <!-- dropdown -->
-                                <div x-show="open" @click.outside="open=false" x-transition
-                                    class="absolute right-0 top-8 p-1 w-32 bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-lg z-50"
-                                    style="display: none;"> <button
-                                        @click="open=false; modal = true; modalContent = 'rename'"
-                                        class="w-full text-left px-2.5 py-1.5 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
-                                        <i data-lucide="edit" class="w-4 h-4 inline-block mr-2"></i> Rename </button>
-                                    <button @click="open=false; modal = true; modalContent = 'confirm'"
-                                        class="w-full text-left px-2.5 py-1.5 rounded-lg text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
-                                        <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2 stroke-current"></i>
-                                        Delete </button>
-                                </div>
-                            </div>
-                        </template> </div>
-                </div>
-                <div class="relative m-2" x-data="{ open: false }">
-                    <div @click="open = !open"
-                        class="p-2 rounded-xl bg-neutral-50 hover:bg-gray-100 cursor-pointer flex items-center justify-between select-none">
-                        <div class="flex items-center"> <img class="w-10 h-10 rounded-full mr-2 object-cover"
-                                src="https://api.dicebear.com/9.x/notionists-neutral/svg?seed=George" alt="">
-                            <div>
-                                <h4 class="font-medium text-gray-700 line-clamp-1 -mb-1">Mohin Uddin</h4> <span
-                                    class="text-blue-500 text-xs text-nowrap">Topper</span>
-                            </div>
-                        </div> <i data-lucide="chevrons-up-down"></i>
-                    </div> <!-- dropdown -->
-                    <div x-show="open" @click.outside="open=false" x-transition
-                        class="absolute right-0 bottom-18 mt-2 p-1 w-60 bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-lg z-50"
-                        style="display: none;">
-                        <div class="px-3 py-2 text-gray-800 text-sm">name@email.com</div>
-                        <div class="border-t border-neutral-200 m-1"></div> <button
-                            @click="open=false; modal = true; modalContent='plans' "
-                            class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
-                            <i data-lucide="circle-fading-arrow-up" class="w-4 h-4 inline-block mr-2"></i> Upgrade Plan
-                        </button> <button @click="open=false; modal = true; modalContent='settings'"
-                            class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
-                            <i data-lucide="settings" class="w-4 h-4 inline-block mr-2"></i> Settings </button>
-                        <div class="border-t border-neutral-200 m-1"></div> <button
-                            class="w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
-                            <i data-lucide="log-out" class="w-4 h-4 inline-block mr-2 stroke-current"></i> Logout
-                        </button>
-                    </div>
-                </div>
-            </aside>
-
-
-            <main x-data="input()" class="flex flex-col height-dvh flex-1 relative">
-                <header
-                    class="relative w-full p-3 flex items-center justify-between border-b border-white transition-all duration-300 bg-white">
-                    <div class="flex items-center gap-2">
-                        <button @click="sidebar = !sidebar" class="btn border-none p-2"
-                            :class="{ 'cursor-w-resize': sidebar}">
-                            <i x-show="!sidebar" data-lucide="panel-left"></i>
-                            <i x-show="sidebar" data-lucide="panel-left-close"></i>
-                        </button>
-                    </div>
-                    <a href="/" class="text-xl text-neutral-900 font-semibold" x-show="!sidebar && selectedConversation != null">Nilmoni</a>
-                    <div x-show="selectedConversation != null" x-data="{ open: false }" class="flex items-center gap-0 relative">
-                        <button @click="open = !open" class="btn p-2 border-none">
-                            <i data-lucide="ellipsis" class="w-5 h-5 stroke-gray-500"></i>
-                        </button>
-                        <!-- dropdown -->
-                        <div x-show="open" @click.outside="open=false" x-transition
-                            class="absolute right-2 top-9 mt-2 p-1 w-36 bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-lg z-50"
-                            style="display: none;">
-                            <button @click="open=false; selectedConversation=null; closeSidebar()"
-                                class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
-                                <i data-lucide="pen-line" class="w-4 h-4 inline-block mr-2"></i>
-                                New chat
-                            </button>
-                            <button @click="open=false; modal = true; modalContent='share'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
-                                <i data-lucide="Share" class="w-4 h-4 inline-block mr-2"></i>
-                                Share
-                            </button>
-                            <button @click="open=false; modal = true; modalContent = 'confirm'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
-                                <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2 stroke-current"></i>
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                    <div x-show="selectedConversation == null">
-                        <button @click="modal = true; modalContent = 'plans'"
-                        class="btn btn-blue border-dashed rounded-full">
-                            <i data-lucide="circle-fading-arrow-up" class="w-4 h-4 inline-block mr-2 !stroke-blue-600"></i> Upgrade
-                        </button>
-                    </div>
-                </header>
-
-                <!-- messages container -->
-                <div x-show="selectedConversation != null" id="chat" class="flex-1 w-full overflow-y-auto pb-4 scrollbar">
-                    <div class="max-w-[46rem] mx-auto mb-36 text-gray-800">
-                        <div class="space-y-8 pt-8 p-4">
-                            <template x-for="message in currentMessages()" :key="message.id">
-                                <div>
-                                    <div x-show="message.role == 'assistant'">
-                                        <div class="markdown-body">
-                                            <div :id="'reply-' + message.id" x-html="message.content"></div>
-                                        </div>
-                                        <div x-data="replyActions()" class="flex items-center justify-between gap-2 mt-4 mb-8">
-                                            <div class="flex items-center gap-2">
-                                                <button
-                                                    @click="copied(); navigator.clipboard.writeText(document.getElementById('reply-' + message.id).innerText)"
-                                                    x-tooltip="Copy"
-                                                    class="btn btn-circle border-transparent ring-transparent"><i
-                                                        x-show="!copy" data-lucide="copy" class="w-4 h-4"></i><i
-                                                        x-show="copy" data-lucide="copy-check"
-                                                        class="w-4 h-4 stroke-blue-500"></i></button>
-                                                <button @click="like = !like; dislike = false" x-tooltip="Like"
-                                                    class="btn btn-circle border-transparent ring-transparent"><i
-                                                        data-lucide="thumbs-up" class="w-4 h-4"
-                                                        :class="{'stroke-blue-500': like}"></i></button>
-
-                                                <button @click="dislike = !dislike; like = false" x-tooltip="Dislike"
-                                                    class="btn btn-circle border-transparent ring-transparent"><i
-                                                        data-lucide="thumbs-down" class="w-4 h-4"
-                                                        :class="{'stroke-red-500': dislike}"></i></button>
-                                                <div x-show="currentMessages().at(-1).id === message.id">
-                                                    <button x-tooltip="Regenerate"
-                                                        class="btn btn-circle border-transparent ring-transparent"><i
-                                                            data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
-
-                                                    <button @click="modal = true; modalContent = 'share'" x-tooltip="Share"
-                                                        class="btn btn-circle border-transparent ring-transparent"><i
-                                                            data-lucide="share" class="w-4 h-4"></i></button>
-                                                </div>
-                                            </div>
-                                            <div class="" x-show="currentMessages().at(-1).id === message.id">
-                                                <p class="text-xs text-gray-500">Nilmoni AI can make mistake. Dubble check important information</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div x-show="message.role == 'user'">
-                                        <div
-                                            class="max-w-lg inline-block bg-gray-100 py-2 px-4 rounded-[18px] rounded-tl-sm font-sans">
-                                            <p x-text="message.content"></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </template>
-
-
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="selectedConversation == null" class="flex-1 w-full overflow-hidden flex flex-col items-center justify-end gap-8 mb-40 py-4">
-                    <div class="flex flex-col items-center justify-center gap-4">
-                        <img src="assets/diamond.png" alt="Nilmoni logo" width="64" height="64">
-                        <h1 class="text-2xl font-semibold text-neutral-900">Nilmoni</h1>
-                        <p class="text-gray-700 text-center text-lg">How can I help you today?</p>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <template x-for="card in cards">
-                            <div @click="prompt = card.prompt; selectedTool = tools.find(tool => tool.id == card.tool)"
-                            class="cursor-pointer select-none hover:bg-gray-50 active:bg-gray-100 transition-all p-3 min-w-64 max-w-80 border-2 rounded-xl border-dashed border-gray-200 ">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <i :data-lucide="card.icon" class="w-4 h-4 stroke-gray-600 inline"></i>
-                                    <h3 class="font-semibold text-gray-600" x-text="card.title"></h3>
-                                </div>
-                                <p class="text-sm line-clamp-1 text-gray-500" x-text="card.prompt"></p>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- input container -->
-                <div
-                    class="input-container-gradient w-full p-3 pt-8 max-w-[48rem] mx-auto absolute bottom-0 left-1/2 -translate-x-1/2">
-                    <div
-                        class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-neutral-300 rounded-3xl p-3 w-full flex flex-col gap-2">
-                        <div class="w-full">
-                            <textarea x-data="{ 
-                                        resize () { 
-                                            $el.style.height = '0px'; 
-                                            $el.style.height = $el.scrollHeight + 'px' 
-                                        } 
-                                    }" x-init="resize()" @input="resize()" @change="resize()" @keydown.enter="post()" type="text"
-                                id="prompt" x-model="prompt" placeholder="Ask me anything..."
-                                class="flex w-full scrollbar-thin h-auto min-h-[36px] max-h-[200px] px-3 py-2 bg-white focus:outline-none focus:ring-0 resize-none"></textarea>
-                        </div>
-                        <div class="flex flex-col">
-                            <div class="flex py-1">
-                                <!-- files preview -->
-                                <div class="flex flex-wrap items-center gap-1">
-                                    <template x-for="(f, i) in files" :key="f.id">
-                                        <div x-init="lucide.createIcons()"
-                                            class="flex items-center gap-1 bg-neutral-100 text-xs text-neutral-500 rounded-full px-2 mb-1">
-                                            <div class="flex items-center gap-2">
-                                                <i data-lucide="file" class="w-4 h-4"></i>
-
-                                                <span x-text="f.name" class="max-w-[160px] truncate"></span>
-                                                <button type="button" @click="removeFile(i)" class="ml-1"
-                                                    aria-label="Remove file">
-                                                    <span class="text-neutral-500 text-xl">&times;</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="flex items-end justify-between">
-                                <div class="flex gap-3">
-                                    <div class="flex items-center gap-2 relative">
-                                        <!-- attach file -->
-                                        <input x-ref="fileInput" type="file" id="fileInput"
-                                            accept="image/*,application/pdf,.txt" multiple class="hidden"
-                                            @change="addFiles($event)">
-                                        <button type="button" x-tooltip="Attach file" class="btn btn-circle"
-                                            @click="$refs.fileInput.click()">
-                                            <i data-lucide="plus" class="w-4 h-4"></i>
-                                        </button>
-                                        <!-- select tool -->
-                                        <div class="relative">
-                                            <button type="button" x-tooltip="Select toot"
-                                                class="btn btn-circle flex gap-1.5 transition-transform max-w-[200px]"
-                                                @click="showTools = !showTools; lucide.createIcons()">
-                                                <i data-lucide="settings-2" class="w-4 h-4"></i>
-                                                <div x-show="selectedTool" class="flex items-center " x-transition>
-                                                    <span
-                                                        class="text-blue-500 font-normal text-sm my-[-2px] pl-1.5 border-l border-neutral-200 text-nowrap overflow-hidden"
-                                                        x-text="selectedTool?.name"></span>
-                                                    <div @click="selectedTool = null"
-                                                        class="ml-2 flex items-center z-10" title="Remove tool">
-                                                        <i data-lucide="x" class="w-4 h-4 inline-block"></i>
-                                                    </div>
-                                                </div>
-                                            </button>
-
-                                            <!-- dropdown -->
-                                            <div x-show="showTools" @click.outside="showTools=false" x-transition
-                                                class="absolute left-0 bottom-10 mt-2 p-1 w-48 bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-lg z-50"
-                                                style="display: none;">
-                                                <button
-                                                    @click="showTools=false; modal = true; modalContent = 'settings' "
-                                                    class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
-                                                    <i data-lucide="settings" class="w-4 h-4 inline-block mr-2"></i>
-                                                    Settings
-                                                </button>
-                                                <div class="border-t border-neutral-200 m-1"></div>
-                                                <div>
-                                                    <template x-for="tool in tools" :key="tool.id">
-                                                        <button @click="selectedTool = tool; showTools=false;"
-                                                            class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
-                                                            <i :data-lucide="tool.icon"
-                                                                class="w-4 h-4 inline-block mr-2"></i>
-                                                            <span x-text="tool.name"></span>
-                                                        </button>
-                                                    </template>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <!-- enhance prompt -->
-                                    <button x-tooltip="Enhance prompt"
-                                        class="btn btn-circle border-transparent ring-transparent"><i
-                                            data-lucide="stars" class="w-4 h-4"></i></button>
-                                    <!-- generate -->
-                                    <button x-tooltip="Generate/Stop (ctrl+enter)"
-                                        class="btn btn-black btn-circle ring-transparent"
-                                        :class="{'bg-neutral-100': isLoading}"
-                                        @click="isLoading = !isLoading; console.log(api.get('103.43.54.123'))">
-                                        <i data-lucide="arrow-up" x-show="!isLoading" class="!stroke-white"></i>
-                                        <i data-lucide="loader" x-show="isLoading"
-                                            class="animate-spin !stroke-neutral-800"></i>
+               <template x-teleport="body">
+                  <div x-show="modal"
+                     class="fixed top-0 left-0 z-[99] flex items-center justify-center w-screen h-screen" x-cloak>
+                     <div x-show="modal" x-transition:enter="ease-out duration-200"
+                        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                        x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0" @click="modal=false"
+                        class="absolute inset-0 w-full h-full bg-white/50 backdrop-blur-xs"></div>
+                     <div x-show="modal" x-transition:enter="ease-out duration-200"
+                        x-transition:enter-start="opacity-0 -translate-y-4 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="ease-in duration-100"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
+                        class="relative bg-white shadow-xl border border-neutral-200 sm:w-auto min-w-80 max-w-xl rounded-xl overflow-hidden transition-all">
+                        <!-- content -->
+                        <div x-show="modalContent == 'settings'"
+                           class="min-h-96 max-w-[40rem] h-[32rem] sm:h-96 w-[calc(100vw-2rem)]">
+                           <button @click="modal=false"
+                              class="absolute top-0 right-0 flex items-center justify-center w-8 h-8 mt-2 mr-2 text-gray-600 rounded-full hover:text-gray-800 hover:bg-gray-50">
+                           <i data-lucide="x"></i>
+                           </button>
+                           <div x-data="{ tab: 'general',  tabs: { 'general': 'globe', 'advanced': 'settings', 'appearance': 'eye'} }"
+                              class="flex flex-col sm:flex-row h-full">
+                              <div
+                                 class="w-full sm:w-48 sm:h-full h-auto bg-gray-50 sm:border-r border-b sm:border-b-0 border-neutral-200 p-4 pt-12 flex flex-col gap-2">
+                                 <template x-for="(icon, t) in tabs" :key="t">
+                                    <button @click="tab = t"
+                                       class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white border border-gray-50 transition"
+                                       :class="{ 'bg-white border-neutral-200': tab == t }">
+                                    <i :data-lucide="icon" class="w-5 h-5"></i>
+                                    <span class="text-sm text-gray-700 capitalize" x-text="t"></span>
                                     </button>
-                                </div>
-                            </div>
+                                 </template>
+                              </div>
+                              <div class="flex-1 h-full px-4 py-6 sm:py-8 overflow-y-auto scrollbar-thin">
+                                 <div x-show="tab == 'general'">
+                                    <p for="" class="text-gray-500 text-xs">Language</p>
+                                    <div x-data="{ 
+                                       open: false,
+                                       options: ['English', 'Bangla', 'Hindi'],
+                                       selected: 'English',
+                                       }" class="relative mt-1">
+                                       <div @click="open = !open"
+                                          class="btn py-1.5 px-2 w-40 flex items-center mt-2">
+                                          <div class="flex items-center justify-between w-full">
+                                             <span x-text="selected" class="font-normal"></span>
+                                             <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
+                                          </div>
+                                       </div>
+                                       <!-- dropdown -->
+                                       <div x-show="open" @click.outside="open=false" x-transition
+                                          class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50"
+                                          style="display: none;">
+                                          <template x-for="option in options" :key="option">
+                                             <button @click="open=false; selected=option"
+                                                class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
+                                             <span x-text="option"></span>
+                                             <i data-lucide="check" x-show="selected == option"
+                                                class="w-4 h-4 stroke-blue-500"
+                                                style="display: none;"></i>
+                                             </button>
+                                          </template>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <div x-show="tab == 'appearance'">
+                                    <p for="" class="text-gray-500 text-xs">Theme</p>
+                                    <div x-data="{ open: false, options: ['Light', 'Dark'], selected: 'Light' }"
+                                       class="relative mt-1">
+                                       <div @click="open = !open"
+                                          class="btn py-1.5 px-2 w-40 flex items-center mt-2">
+                                          <div class="flex items-center justify-between w-full">
+                                             <span x-text="selected" class="font-normal"></span>
+                                             <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
+                                          </div>
+                                       </div>
+                                       <!-- dropdown -->
+                                       <div x-show="open" @click.outside="open=false" x-transition
+                                          class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50"
+                                          style="display: none;">
+                                          <template x-for="option in options" :key="option">
+                                             <button @click="open=false; selected=option"
+                                                class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
+                                             <span x-text="option"></span>
+                                             <i data-lucide="check" x-show="selected == option"
+                                                class="w-4 h-4 stroke-blue-500"
+                                                style="display: none;"></i>
+                                             </button>
+                                          </template>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <div x-show="tab == 'advanced'">
+                                    <p for="" class="text-gray-500 text-xs">Model</p>
+                                    <div x-data="{ open: false, options: ['GPT-3.5', 'GPT-4'], selected: 'GPT-3.5' }"
+                                       class="relative mt-1">
+                                       <div @click="open = !open"
+                                          class="btn py-1.5 px-2 w-40 flex items-center mt-2">
+                                          <div class="flex items-center justify-between w-full">
+                                             <span x-text="selected" class="font-normal"></span>
+                                             <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
+                                          </div>
+                                       </div>
+                                       <!-- dropdown -->
+                                       <div x-show="open" @click.outside="open=false" x-transition
+                                          class="absolute left-0 mt-2 p-1 w-40 bg-white border border-neutral-200 rounded-lg overflow-hidden shadow-lg z-50"
+                                          style="display: none;">
+                                          <template x-for="option in options" :key="option">
+                                             <button @click="open=false; selected=option"
+                                                class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50 active:bg-gray-100 flex items-center justify-between">
+                                             <span x-text="option"></span>
+                                             <i data-lucide="check" x-show="selected == option"
+                                                class="w-4 h-4 stroke-blue-500"
+                                                style="display: none;"></i>
+                                             </button>
+                                          </template>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-                    </div>
-                </div>
+                        <div x-show="modalContent == 'rename'" class="flex flex-col p-6 w-80 sm:w-96">
+                           <h4 class="mb-4"><i data-lucide="info"
+                              class="w-4 h-4 stroke-neutral-900 inline-block mr-2"></i>Rename chat</h4>
+                           <input type="text" id="chatName" placeholder="Chat name"
+                              class="w-full border border-neutral-300 rounded-lg px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-neutral-200">
+                           <div class="flex items-center justify-end gap-4">
+                              <div @click="modal = false" class="btn rounded-full">
+                                 Cancel
+                              </div>
+                              <div @click="modal = false" class="btn btn-black rounded-full">
+                                 Rename
+                              </div>
+                           </div>
+                        </div>
+                        <div x-show="modalContent == 'share'" class="flex flex-col p-6 w-80 sm:w-96">
+                           <h4 class="mb-4"><i data-lucide="share-2"
+                              class="w-4 h-4 stroke-neutral-900 inline-block mr-2"></i>Share this chat</h4>
+                           <input type="text" id="shareLink" value="https://example.com/chat/123"
+                              class="w-full border border-neutral-300 bg-neutral-50 rounded-lg px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-neutral-200"
+                              disabled>
+                           <div class="flex items-center justify-end gap-4">
+                              <div @click="modal = false" class="btn rounded-full">
+                                 Cancel
+                              </div>
+                              <div @click="modal = false" class="btn btn-black rounded-full">
+                                 <i data-lucide="copy" class="w-4 h-4 stroke-white inline-block mr-2"></i>Copy
+                              </div>
+                           </div>
+                        </div>
+                        <div x-show="modalContent == 'confirm'" class="flex flex-col p-6 w-80 sm:w-96">
+                           <h4 class="mb-4"><i data-lucide="info"
+                              class="w-4 h-4 stroke-red-500 inline-block mr-2"></i>Delete chat?</h4>
+                           <p class="mb-6 text-gray-500">Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                              Officiis, assumenda?
+                           </p>
+                           <div class="flex items-center justify-end gap-4">
+                              <div @click="modal = false" class="btn rounded-full">
+                                 Cancel
+                              </div>
+                              <div @click="modal = false" class="btn btn-red rounded-full">
+                                 Delete
+                              </div>
+                           </div>
+                        </div>
+                        <div x-show="modalContent == 'upload-alert'" class="flex flex-col p-6 w-80 sm:w-96">
+                           <h4 class="mb-4"><i data-lucide="file-x"
+                              class="w-4 h-4 stroke-red-500 inline-block mr-2"></i>Can't upload</h4>
+                           <p class="mb-6 text-gray-500">You can upload only 3 file in Free plane. <span
+                              @click="modal=true; modalContent='plans'" class="link">Upgrade plane</span> to
+                              upload more
+                           </p>
+                           <div class="flex items-center justify-end gap-4">
+                              <div @click="modal = false" class="btn rounded-full">
+                                 Cancel
+                              </div>
+                              <div @click="modal=true; modalContent='plans'" class="btn btn-blue rounded-full">
+                                 Upgrade
+                              </div>
+                           </div>
+                        </div>
+                        <div x-show="modalContent == 'plans'" class="flex flex-col p-6 w-80 sm:w-96">
+                           <h2 class="text-3xl font-semibold text-center text-neutral-900 mb-4">Topper <span
+                              class="text-black underline">Plan</span></h2>
+                           <!-- pricing -->
+                           <div class="flex items-center justify-center">
+                              <div class="flex items-center gap-2">
+                                 <span class="text-3xl font-medium text-neutral-900">৳500</span>
+                                 <span class="text-sm text-neutral-500">/ month</span>
+                              </div>
+                           </div>
+                           <!-- features -->
+                           <div class="mt-4 p-4">
+                              <ul class="list-inside">
+                                 <li><i data-lucide="check" class="inline stroke-blue-500 mr-3"></i>More
+                                    accurate responses
+                                 </li>
+                                 <li><i data-lucide="check" class="inline stroke-blue-500 mr-3"></i>Access to
+                                    advanced models
+                                 </li>
+                                 <li><i data-lucide="check" class="inline stroke-blue-500 mr-3"></i>50 Chat per
+                                    day
+                                 </li>
+                              </ul>
+                           </div>
+                           <button class="btn btn-black rounded-full py-2 px-5 text-lg font-medium m-6">Get
+                           started</button>
+                        </div>
+                     </div>
+                  </div>
+               </template>
+            </div>
+            <div @keydown.escape.window="sidebar = false" @click="sidebar = false" x-show="sidebar"
+               class="md:hidden absolute inset-0 w-full h-full bg-white/50 backdrop-blur-xs z-20"
+               style="display: none;"></div>
+            <aside
+               class="absolute w-0 overflow-hidden md:static flex flex-col bg-white h-full border-r border-gray-300 z-30 transition-all duration-100"
+               :class="{ 'w-0': !sidebar, 'w-64': sidebar }">
+               <a href="/">
+                  <div class="flex items-center p-4 gap-2">
+                     <img src="assets/diamond.png" alt="Nilmoni logo"
+                        width="28" height="28">
+                     <h2 class="text-xl text-neutral-900 text-nowrap font-semibold">Nilmoni</h2>
+                  </div>
+               </a>
+               <div> <button @click="selectedConversation=null; closeSidebar()"
+                  class="mx-3 w-auto flex items-center justify-center gap-2 p-2 pr-4 hover:bg-gray-100 active:bg-gray-200 rounded-full text-sm">
+                  <i data-lucide="pen-line"
+                     class="w-4 h-4"></i><span
+                     class="text-gray-600 text-sm text-nowrap">New chat</span>
+                  </button> 
+               </div>
+               <div class="flex-1 px-3 mt-4 overflow-y-auto scrollbar-thin">
+                  <p class="text-gray-400 text-sm mb-4 ml-3 text-nowrap">All Chats</p>
+                  <div class="flex flex-col gap-2">
+                     <template x-for="conversation in conversations" :key="conversation.id">
+                        <div x-data="{ open: false }"
+                           class="group relative items-center rounded-full hover:bg-gray-50 cursor-pointer active:bg-gray-100 flex transition-all">
+                           <p @click="selectedConversation = conversation.id; closeSidebar()" x-text="conversation.title" class="flex-1 pl-3 py-2 text-sm text-gray-700 line-clamp-1"></p>
+                           <button @click="open = !open"
+                              class="md:hidden cursor-pointer w-7 h-7 m-1 group-hover:flex flex items-center justify-center bg-white hover:bg-gray-50 border ring-offset-2 focus:ring-2 focus:ring-neutral-200 border-neutral-200 rounded-full">
+                           <i data-lucide="ellipsis" class="w-4 h-4"></i> </button> <!-- dropdown -->
+                           <div x-show="open" @click.outside="open=false" x-transition
+                              class="absolute right-0 top-8 p-1 w-32 bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-lg z-50"
+                              style="display: none;"> <button
+                              @click="open=false; modal = true; modalContent = 'rename'"
+                              class="w-full text-left px-2.5 py-1.5 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                              <i data-lucide="edit" class="w-4 h-4 inline-block mr-2"></i> Rename </button>
+                              <button @click="open=false; modal = true; modalContent = 'confirm'"
+                                 class="w-full text-left px-2.5 py-1.5 rounded-lg text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
+                              <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2 stroke-current"></i>
+                              Delete </button>
+                           </div>
+                        </div>
+                     </template>
+                  </div>
+               </div>
+               <div class="relative m-2" x-data="{ open: false }">
+                  <div @click="open = !open"
+                     class="p-2 rounded-xl bg-neutral-50 hover:bg-gray-100 cursor-pointer flex items-center justify-between select-none">
+                     <div class="flex items-center">
+                        <img class="w-10 h-10 rounded-full mr-2 object-cover"
+                           src="https://api.dicebear.com/9.x/notionists-neutral/svg?seed=George" alt="">
+                        <div>
+                           <h4 class="font-medium text-gray-700 line-clamp-1 -mb-1">Mohin Uddin</h4>
+                           <span
+                              class="text-blue-500 text-xs text-nowrap">Topper</span>
+                        </div>
+                     </div>
+                     <i data-lucide="chevrons-up-down"></i>
+                  </div>
+                  <!-- dropdown -->
+                  <div x-show="open" @click.outside="open=false" x-transition
+                     class="absolute right-0 bottom-18 mt-2 p-1 w-60 bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-lg z-50"
+                     style="display: none;">
+                     <div class="px-3 py-2 text-gray-800 text-sm">name@email.com</div>
+                     <div class="border-t border-neutral-200 m-1"></div>
+                     <button
+                        @click="open=false; modal = true; modalContent='plans' "
+                        class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                     <i data-lucide="circle-fading-arrow-up" class="w-4 h-4 inline-block mr-2"></i> Upgrade Plan
+                     </button> <button @click="open=false; modal = true; modalContent='settings'"
+                        class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                     <i data-lucide="settings" class="w-4 h-4 inline-block mr-2"></i> Settings </button>
+                     <div class="border-t border-neutral-200 m-1"></div>
+                     <button
+                        class="w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
+                     <i data-lucide="log-out" class="w-4 h-4 inline-block mr-2 stroke-current"></i> Logout
+                     </button>
+                  </div>
+               </div>
+            </aside>
+            <main x-data="input()" class="flex flex-col height-dvh flex-1 relative">
+               <header
+                  class="relative w-full p-3 flex items-center justify-between border-b border-white transition-all duration-300 bg-white">
+                  <div class="flex items-center gap-2">
+                     <button @click="sidebar = !sidebar" class="btn border-none p-2"
+                        :class="{ 'cursor-w-resize': sidebar}">
+                     <i x-show="!sidebar" data-lucide="panel-left"></i>
+                     <i x-show="sidebar" data-lucide="panel-left-close"></i>
+                     </button>
+                  </div>
+                  <a href="/" class="text-xl text-neutral-900 font-semibold" x-show="!sidebar && selectedConversation != null">Nilmoni</a>
+                  <div x-show="selectedConversation != null" x-data="{ open: false }" class="flex items-center gap-0 relative">
+                     <button @click="open = !open" class="btn p-2 border-none">
+                     <i data-lucide="ellipsis" class="w-5 h-5 stroke-gray-500"></i>
+                     </button>
+                     <!-- dropdown -->
+                     <div x-show="open" @click.outside="open=false" x-transition
+                        class="absolute right-2 top-9 mt-2 p-1 w-36 bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-lg z-50"
+                        style="display: none;">
+                        <button @click="open=false; selectedConversation=null; closeSidebar()"
+                           class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                        <i data-lucide="pen-line" class="w-4 h-4 inline-block mr-2"></i>
+                        New chat
+                        </button>
+                        <button @click="open=false; modal = true; modalContent='share'"
+                           class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                        <i data-lucide="Share" class="w-4 h-4 inline-block mr-2"></i>
+                        Share
+                        </button>
+                        <button @click="open=false; modal = true; modalContent = 'confirm'"
+                           class="w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:text-red-700 hover:bg-gray-50">
+                        <i data-lucide="trash-2" class="w-4 h-4 inline-block mr-2 stroke-current"></i>
+                        Delete
+                        </button>
+                     </div>
+                  </div>
+                  <div x-show="selectedConversation == null">
+                     <button @click="modal = true; modalContent = 'plans'"
+                        class="btn btn-blue border-dashed rounded-full">
+                     <i data-lucide="circle-fading-arrow-up" class="w-4 h-4 inline-block mr-2 !stroke-blue-600"></i> Upgrade
+                     </button>
+                  </div>
+               </header>
+               <!-- messages container -->
+               <div x-show="selectedConversation != null" id="chat" class="flex-1 w-full overflow-y-auto pb-4 scrollbar">
+                  <div class="max-w-[46rem] mx-auto mb-36 text-gray-800">
+                     <div class="space-y-8 pt-8 p-4">
+                        <template x-for="message in currentMessages()" :key="message.id">
+                           <div>
+                              <div x-show="message.role == 'assistant'">
+                                 <div class="markdown-body">
+                                    <div :id="'reply-' + message.id" x-html="message.content"></div>
+                                 </div>
+                                 <div x-data="replyActions()" class="flex items-center justify-between gap-2 mt-4 mb-8">
+                                    <div class="flex items-center gap-2">
+                                       <button
+                                          @click="copied(); navigator.clipboard.writeText(document.getElementById('reply-' + message.id).innerText)"
+                                          x-tooltip="Copy"
+                                          class="btn btn-circle border-transparent ring-transparent"><i
+                                          x-show="!copy" data-lucide="copy" class="w-4 h-4"></i><i
+                                          x-show="copy" data-lucide="copy-check"
+                                          class="w-4 h-4 stroke-blue-500"></i></button>
+                                       <button @click="like = !like; dislike = false" x-tooltip="Like"
+                                          class="btn btn-circle border-transparent ring-transparent"><i
+                                          data-lucide="thumbs-up" class="w-4 h-4"
+                                          :class="{'stroke-blue-500': like}"></i></button>
+                                       <button @click="dislike = !dislike; like = false" x-tooltip="Dislike"
+                                          class="btn btn-circle border-transparent ring-transparent"><i
+                                          data-lucide="thumbs-down" class="w-4 h-4"
+                                          :class="{'stroke-red-500': dislike}"></i></button>
+                                       <div x-show="currentMessages().at(-1).id === message.id">
+                                          <button x-tooltip="Regenerate"
+                                             class="btn btn-circle border-transparent ring-transparent"><i
+                                             data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+                                          <button @click="modal = true; modalContent = 'share'" x-tooltip="Share"
+                                             class="btn btn-circle border-transparent ring-transparent"><i
+                                             data-lucide="share" class="w-4 h-4"></i></button>
+                                       </div>
+                                    </div>
+                                    <div class="" x-show="currentMessages().at(-1).id === message.id">
+                                       <p class="text-xs text-gray-500">Nilmoni AI can make mistake. Dubble check important information</p>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div x-show="message.role == 'user'">
+                                 <div
+                                    class="max-w-lg inline-block bg-gray-100 py-2 px-4 rounded-[18px] rounded-tl-sm font-sans">
+                                    <p x-text="message.content"></p>
+                                 </div>
+                              </div>
+                           </div>
+                        </template>
+                     </div>
+                  </div>
+               </div>
+               <div x-show="selectedConversation == null" class="flex-1 w-full overflow-hidden flex flex-col items-center justify-end gap-8 mb-40 py-4">
+                  <div class="flex flex-col items-center justify-center gap-4">
+                     <img src="assets/diamond.png" alt="Nilmoni logo" width="64" height="64">
+                     <h1 class="text-2xl font-semibold text-neutral-900">Nilmoni</h1>
+                     <p class="text-gray-700 text-center text-lg">How can I help you today?</p>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <template x-for="card in cards">
+                        <div @click="prompt = card.prompt; selectedTool = tools.find(tool => tool.id == card.tool)"
+                           class="cursor-pointer select-none hover:bg-gray-50 active:bg-gray-100 transition-all p-3 min-w-64 max-w-80 border-2 rounded-xl border-dashed border-gray-200 ">
+                           <div class="flex items-center gap-2 mb-1">
+                              <i :data-lucide="card.icon" class="w-4 h-4 stroke-gray-600 inline"></i>
+                              <h3 class="font-semibold text-gray-600" x-text="card.title"></h3>
+                           </div>
+                           <p class="text-sm line-clamp-1 text-gray-500" x-text="card.prompt"></p>
+                        </div>
+                     </template>
+                  </div>
+               </div>
+               <!-- input container -->
+               <div
+                  class="input-container-gradient w-full p-3 pt-8 max-w-[48rem] mx-auto absolute bottom-0 left-1/2 -translate-x-1/2">
+                  <div
+                     class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-neutral-300 rounded-3xl p-3 w-full flex flex-col gap-2">
+                     <div class="w-full">
+                        <textarea x-data="{ 
+                        resize () { 
+                        $el.style.height = '0px'; 
+                        $el.style.height = $el.scrollHeight + 'px' 
+                        } 
+                        }" x-init="resize()" @input="resize()" @change="resize()" @keydown.enter="post()" type="text"
+                        id="prompt" x-model="prompt" placeholder="Ask me anything..."
+                        class="flex w-full scrollbar-thin h-auto min-h-[36px] max-h-[200px] px-3 py-2 bg-white focus:outline-none focus:ring-0 resize-none"></textarea>
+                     </div>
+                     <div class="flex flex-col">
+                        <div class="flex py-1">
+                           <!-- files preview -->
+                           <div class="flex flex-wrap items-center gap-1">
+                              <template x-for="(f, i) in files" :key="f.id">
+                                 <div x-init="lucide.createIcons()"
+                                    class="flex items-center gap-1 bg-neutral-100 text-xs text-neutral-500 rounded-full px-2 mb-1">
+                                    <div class="flex items-center gap-2">
+                                       <i data-lucide="file" class="w-4 h-4"></i>
+                                       <span x-text="f.name" class="max-w-[160px] truncate"></span>
+                                       <button type="button" @click="removeFile(i)" class="ml-1"
+                                          aria-label="Remove file">
+                                       <span class="text-neutral-500 text-xl">&times;</span>
+                                       </button>
+                                    </div>
+                                 </div>
+                              </template>
+                           </div>
+                        </div>
+                        <div class="flex items-end justify-between">
+                           <div class="flex gap-3">
+                              <div class="flex items-center gap-2 relative">
+                                 <!-- attach file -->
+                                 <input x-ref="fileInput" type="file" id="fileInput"
+                                    accept="image/*,application/pdf,.txt" multiple class="hidden"
+                                    @change="addFiles($event)">
+                                 <button type="button" x-tooltip="Attach file" class="btn btn-circle"
+                                    @click="$refs.fileInput.click()">
+                                 <i data-lucide="plus" class="w-4 h-4"></i>
+                                 </button>
+                                 <!-- select tool -->
+                                 <div class="relative">
+                                    <button type="button" x-tooltip="Select toot"
+                                       class="btn btn-circle flex gap-1.5 transition-transform max-w-[200px]"
+                                       @click="showTools = !showTools; lucide.createIcons()">
+                                       <i data-lucide="settings-2" class="w-4 h-4"></i>
+                                       <div x-show="selectedTool" class="flex items-center " x-transition>
+                                          <span
+                                             class="text-blue-500 font-normal text-sm my-[-2px] pl-1.5 border-l border-neutral-200 text-nowrap overflow-hidden"
+                                             x-text="selectedTool?.name"></span>
+                                          <div @click="selectedTool = null"
+                                             class="ml-2 flex items-center z-10" title="Remove tool">
+                                             <i data-lucide="x" class="w-4 h-4 inline-block"></i>
+                                          </div>
+                                       </div>
+                                    </button>
+                                    <!-- dropdown -->
+                                    <div x-show="showTools" @click.outside="showTools=false" x-transition
+                                       class="absolute left-0 bottom-10 mt-2 p-1 w-48 bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-lg z-50"
+                                       style="display: none;">
+                                       <button
+                                          @click="showTools=false; modal = true; modalContent = 'settings' "
+                                          class="w-full text-left px-3 py-2 rounded-lg text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                                       <i data-lucide="settings" class="w-4 h-4 inline-block mr-2"></i>
+                                       Settings
+                                       </button>
+                                       <div class="border-t border-neutral-200 m-1"></div>
+                                       <div>
+                                          <template x-for="tool in tools" :key="tool.id">
+                                             <button @click="selectedTool = tool; showTools=false;"
+                                                class="w-full text-left px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-neutral-800 hover:bg-gray-50">
+                                             <i :data-lucide="tool.icon"
+                                                class="w-4 h-4 inline-block mr-2"></i>
+                                             <span x-text="tool.name"></span>
+                                             </button>
+                                          </template>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="flex items-center gap-2">
+                              <!-- enhance prompt -->
+                              <button x-tooltip="Enhance prompt"
+                                 class="btn btn-circle border-transparent ring-transparent"><i
+                                 data-lucide="stars" class="w-4 h-4"></i></button>
+                              <!-- generate -->
+                              <button x-tooltip="Generate/Stop (ctrl+enter)"
+                                 class="btn btn-black btn-circle ring-transparent"
+                                 :class="{'bg-neutral-100': isLoading}"
+                                 @click="isLoading = !isLoading; console.log(api.get('103.43.54.123'))">
+                              <i data-lucide="arrow-up" x-show="!isLoading" class="!stroke-white"></i>
+                              <i data-lucide="loader" x-show="isLoading"
+                                 class="animate-spin !stroke-neutral-800"></i>
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </main>
-
-
-
-        </div>
-    </div>
-
-
-    <script src="js/lucide.js"></script>
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.effect(() => {
-                Alpine.nextTick(() => {
-                    lucide.createIcons();
-                });
-            });
-            setInterval(() => {
-                lucide.createIcons();
-            }, 1000);
-        });
-
-    </script>
-</body>
-
+         </div>
+      </div>
+      <script src="js/lucide.js"></script>
+      <script>
+         document.addEventListener('alpine:init', () => {
+             Alpine.effect(() => {
+                 Alpine.nextTick(() => {
+                     lucide.createIcons();
+                 });
+             });
+             setInterval(() => {
+                 lucide.createIcons();
+             }, 1000);
+         });
+         
+      </script>
+   </body>
 </html>
