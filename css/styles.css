@@ -22,7 +22,7 @@ body {
   height: 100vh;
 }
 
-@support (height: 100dvh) {
+@supports (height: 100dvh) {
   .height-dvh {
     height: 100dvh;
   }
@@ -56,13 +56,16 @@ button {
 }
 
 @layer components {
+    .link {
+      @apply text-neutral-800 underline underline-offset-1 cursor-pointer;
+    }
 
     .btn {
       @apply bg-white text-neutral-700 border border-neutral-200 hover:text-neutral-800 hover:bg-neutral-100 active:bg-neutral-50 inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium tracking-wide transition-colors duration-200 rounded-md hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:shadow-outline focus:ring-neutral-200;
     }
 
     .btn-circle {
-      @apply rounded-full p-1.5 ;
+      @apply rounded-full p-2;
     }
 
     .btn-black {
@@ -73,8 +76,8 @@ button {
       @apply bg-red-500 text-white hover:text-white border border-red-600 hover:bg-red-600 focus:ring-red-400 active:bg-red-400;
     }
 
-    .btn-green {
-      @apply bg-green-50 text-green-600 border border-green-200 hover:text-green-700 hover:bg-green-100 focus:ring-green-100 active:bg-green-200;
+    .btn-blue {
+      @apply bg-blue-50 text-blue-600 border border-blue-200 hover:text-blue-700 hover:bg-blue-100 focus:ring-blue-100 active:bg-blue-200;
     }
 
 }
