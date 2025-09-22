@@ -39,8 +39,8 @@ function main() {
 
         //API handler
         api: {
-            baseUrl: 'http://ip-api.com/json/',
-            async get(endpoint) {
+            baseUrl: 'http://127.0.0.1:8000/api/',
+            async HTTPget(endpoint) {
             try {
                 const res = await fetch(this.baseUrl + endpoint);
                 if (!res.ok) throw new Error(`GET ${endpoint} failed`);
@@ -66,6 +66,14 @@ function main() {
             }
         },
 
+        scrollToBottom() {
+            const chat = document.querySelector('#chat');
+            chat.scrollTo({
+                top: chat.scrollHeight,
+                behavior: 'smooth'
+            });
+        },
+
         // conversations
         
         conversations: [
@@ -79,8 +87,8 @@ function main() {
                         content: 'Describe how AI works',
                         status: 'completed',
                         error_message: '',
-                        model_used: '',
-                        response_time_ms: 0,
+                        toolUsed: '',
+                        attachments: [],
                     },
                     {
                         id: 2,
@@ -141,8 +149,8 @@ function main() {
                                 </ul>`,
                         status: 'completed',
                         error_message: '',
-                        model_used: '',
-                        response_time_ms: 0,
+                        toolUsed: '',
+                        attachments: [],
                     },
                     {
                         id: 3,
@@ -150,8 +158,8 @@ function main() {
                         content: 'What is AI?',
                         status: 'completed',
                         error_message: '',
-                        model_used: '',
-                        response_time_ms: 0,
+                        toolUsed: '',
+                        attachments: [],
                     },
                     {
                         id: 4,
@@ -164,8 +172,8 @@ function main() {
                         
                         status: 'completed',
                         error_message: '',
-                        model_used: '',
-                        response_time_ms: 0,
+                        toolUsed: '',
+                        attachments: [],
                     }
 
                 ]
@@ -180,8 +188,8 @@ function main() {
                         content: 'What is the purpose of being human?',
                         status: 'completed',
                         error_message: '',
-                        model_used: '',
-                        response_time_ms: 0,
+                        toolUsed: '',
+                        attachments: [],
                     },
                     {
                         id: 2,
@@ -242,8 +250,8 @@ function main() {
                                 `,
                         status: 'completed',
                         error_message: '',
-                        model_used: '',
-                        response_time_ms: 0,
+                        toolUsed: '',
+                        attachments: [],
                     },
 
                 ]
@@ -256,6 +264,146 @@ function main() {
         },
         hasMessages() {
             return this.currentMessages.length > 0;
+        },
+        addUserMessage(prompt, toolUsed, attachments) {
+            if (this.prompt === '') return;
+
+            const conversation = this.conversations.find(
+                c => c.id === this.selectedConversation
+            );
+
+            if (conversation === undefined) {
+                const uuid = crypto.randomUUID();
+                console.log(uuid);
+
+                const newConversation = {
+                    id: uuid,
+                    title: 'New Conversation',
+                    messages: []
+                };
+
+                this.conversations.push(newConversation);
+                this.selectedConversation = uuid;
+
+                newConversation.messages.push({
+                    id: crypto.randomUUID(),
+                    role: 'user',
+                    content: prompt,
+                    status: 'completed',
+                    error_message: '',
+                    toolUsed,
+                    attachments,
+                });
+            } else {
+                conversation.messages.push({
+                    id: crypto.randomUUID(),
+                    role: 'user',
+                    content: prompt,
+                    status: 'completed',
+                    error_message: '',
+                    toolUsed,
+                    attachments,
+                });
+            }
+        },
+        addAssistantMessage(message, uuid=null) {
+            const conversation = this.conversations.find(
+                c => c.id === this.selectedConversation
+            );
+            if (uuid !== null) {
+                conversation.messages.find(m => m.id === uuid).content += message;
+                return uuid;
+            } else {
+                uuid = crypto.randomUUID();
+                conversation.messages.push({
+                    id: uuid,
+                    role: 'assistant',
+                    content: message,
+                    status: 'completed',
+                    error_message: '',
+                    toolUsed: '',
+                    attachments: [],
+                });
+            }
+                
+            return uuid;
+        },
+
+        // input
+        prompt: '',
+        files: [],
+        tools: [
+            { id: 'take-exam', name: 'Take Exam', icon: 'graduation-cap' },
+            { id: 'teach', name: 'Teach me', icon: 'book-open-text' },
+            { id: 'summarize', name: 'Summarize', icon: 'text' },
+            { id: 'q&a', name: 'q & a', icon: 'message-circle-question-mark' },
+        ],
+        selectedTool: null,
+        showTools: false,
+        isLoading: false,
+        isTyping: false,
+
+
+        addFiles(event){
+            const chosen = Array.from(event.target.files || []);
+            for(const f of chosen){
+                if (this.files.find(file => file.name === f.name)) continue;
+                if (this.files.length >= 3) {this.modal=true; this.modalContent='upload-alert'; return;};
+                const isImage = f.type.startsWith('image/');
+                const url = isImage ? URL.createObjectURL(f) : null;
+                this.files.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2), file: f, name: f.name, url, isImage });
+            }
+            // reset input so choosing the same file again works
+            event.target.value = '';
+        },
+
+        removeFile(index){
+            const item = this.files[index];
+            if(item && item.url) URL.revokeObjectURL(item.url);
+            this.files.splice(index,1);
+        },
+
+        async submitPrompt() {
+            if (this.prompt.trim() === '') return;
+            if (this.isLoading) return;
+            
+            this.addUserMessage(this.prompt, this.selectedTool, this.files);
+            const promptToSend = this.currentMessages().map(m => m.content).join('|||');
+
+            this.prompt = '';
+            this.files = [];
+            this.showTools = false;
+            this.selectedTool = null;
+
+            this.isLoading = true;
+
+            this.$nextTick(() => {
+                this.scrollToBottom();
+                this.prompt = '';
+            });
+
+            setTimeout(async () => {
+
+                this.api.HTTPget('chat/?prompt=' + promptToSend).then(message => {
+                    this.isTyping = true;
+                    this.isLoading = false;
+                    console.log(message);
+                    const messageParts = message.text.split(' ');
+                    const uuid = this.addAssistantMessage(messageParts[0]);
+                    let i=1;
+                    const interval = setInterval(() => {
+                        const part = messageParts[i];
+                        if (part === undefined) {
+                            this.isTyping = false;
+                            clearInterval(interval);
+                            return;
+                        }
+                        // append message
+                        this.addAssistantMessage(' ' + part, uuid);
+                        i++;
+                    }, 50);
+                });
+            }, 100);
         },
     }
 }

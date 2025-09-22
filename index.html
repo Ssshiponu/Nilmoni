@@ -228,7 +228,7 @@
                                  </li>
                               </ul>
                            </div>
-                           <button class="btn btn-black rounded-full py-2 px-5 text-lg font-medium m-6">Get
+                           <button @click="modal = false" class="btn btn-black rounded-full py-2 px-5 text-lg font-medium m-6">Get
                            started</button>
                         </div>
                      </div>
@@ -239,7 +239,7 @@
                class="md:hidden absolute inset-0 w-full h-full bg-white/50 backdrop-blur-xs z-20"
                style="display: none;"></div>
             <aside
-               class="absolute w-0 overflow-hidden md:static flex flex-col bg-white h-full border-r border-gray-300 z-30 transition-all duration-100"
+               class="absolute w-0 overflow-hidden md:static flex flex-col bg-white h-full border-r border-gray-300 z-30 transition-all duration-200"
                :class="{ 'w-0': !sidebar, 'w-64': sidebar }">
                <a href="/">
                   <div class="flex items-center p-4 gap-2">
@@ -315,7 +315,7 @@
                   </div>
                </div>
             </aside>
-            <main x-data="input()" class="flex flex-col height-dvh flex-1 relative">
+            <main class="flex flex-col height-dvh flex-1 relative">
                <header
                   class="relative w-full p-3 flex items-center justify-between border-b border-white transition-all duration-300 bg-white">
                   <div class="flex items-center gap-2">
@@ -360,7 +360,7 @@
                </header>
                <!-- messages container -->
                <div x-show="selectedConversation != null" id="chat" class="flex-1 w-full overflow-y-auto pb-4 scrollbar">
-                  <div class="max-w-[46rem] mx-auto mb-36 text-gray-800">
+                  <div class="max-w-[46rem] mx-auto text-gray-800 mb-96">
                      <div class="space-y-8 pt-8 p-4">
                         <template x-for="message in currentMessages()" :key="message.id">
                            <div>
@@ -368,8 +368,8 @@
                                  <div class="markdown-body">
                                     <div :id="'reply-' + message.id" x-html="message.content"></div>
                                  </div>
-                                 <div x-data="replyActions()" class="flex items-center justify-between gap-2 mt-4 mb-8">
-                                    <div class="flex items-center gap-2">
+                                 <div x-show="!isLoading && !isTyping" x-data="replyActions()" class="flex items-center justify-between gap-2 mt-4 mb-8">
+                                    <div class="flex items-center sm:gap-2">
                                        <button
                                           @click="copied(); navigator.clipboard.writeText(document.getElementById('reply-' + message.id).innerText)"
                                           x-tooltip="Copy"
@@ -385,32 +385,39 @@
                                           class="btn btn-circle border-transparent ring-transparent"><i
                                           data-lucide="thumbs-down" class="w-4 h-4"
                                           :class="{'stroke-red-500': dislike}"></i></button>
-                                       <div x-show="currentMessages().at(-1).id === message.id">
-                                          <button x-tooltip="Regenerate"
-                                             class="btn btn-circle border-transparent ring-transparent"><i
-                                             data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+                                       <div x-show="currentMessages().at(-1).id === message.id" class="flex items-center gap-2">
+                                          
                                           <button @click="modal = true; modalContent = 'share'" x-tooltip="Share"
                                              class="btn btn-circle border-transparent ring-transparent"><i
                                              data-lucide="share" class="w-4 h-4"></i></button>
                                        </div>
                                     </div>
-                                    <div class="" x-show="currentMessages().at(-1).id === message.id">
-                                       <p class="text-xs text-gray-500">Nilmoni AI can make mistake. Dubble check important information</p>
-                                    </div>
+
                                  </div>
                               </div>
-                              <div x-show="message.role == 'user'">
+                              <div x-show="message.role == 'user'" class="flex items-end gap-2">
                                  <div
                                     class="max-w-lg inline-block bg-gray-100 py-2 px-4 rounded-[18px] rounded-tl-sm font-sans">
                                     <p x-text="message.content"></p>
                                  </div>
+                                 <div class="flex items-center justify-end" x-show="currentMessages().filter(m => m.role === 'user')[-1]?.id === message.id">
+                                    <button @click="" x-tooltip="Edit"
+                                       class="btn btn-circle border-transparent ring-transparent"><i
+                                       data-lucide="edit" class="w-4 h-4"></i></button>
+                                    <button x-tooltip="Regenerate"
+                                       class="btn btn-circle border-transparent ring-transparent"><i
+                                       data-lucide="rotate-cw" class="w-4 h-4"></i></button>
+                                 </div>
                               </div>
                            </div>
                         </template>
+                              <div x-show="isLoading" class="p-2" style="display: none;">
+                                 <img src="assets/loading.svg" alt="">
+                              </div>
                      </div>
                   </div>
                </div>
-               <div x-show="selectedConversation == null" class="flex-1 w-full overflow-hidden flex flex-col items-center justify-end gap-8 mb-40 py-4">
+               <div x-show="selectedConversation == null" class="flex-1 w-full overflow-hidden flex flex-col items-center justify-end gap-8 mb-40 px-4">
                   <div class="flex flex-col items-center justify-center gap-4">
                      <img src="assets/diamond.png" alt="Nilmoni logo" width="64" height="64">
                      <h1 class="text-2xl font-semibold text-neutral-900">Nilmoni</h1>
@@ -419,7 +426,7 @@
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <template x-for="card in cards">
                         <div @click="prompt = card.prompt; selectedTool = tools.find(tool => tool.id == card.tool)"
-                           class="cursor-pointer select-none hover:bg-gray-50 active:bg-gray-100 transition-all p-3 min-w-64 max-w-80 border-2 rounded-xl border-dashed border-gray-200 ">
+                           class="cursor-pointer select-none hover:bg-gray-50 active:bg-gray-100 transition-all p-3 max-w-80 border-2 rounded-xl border-dashed border-gray-200 ">
                            <div class="flex items-center gap-2 mb-1">
                               <i :data-lucide="card.icon" class="w-4 h-4 stroke-gray-600 inline"></i>
                               <h3 class="font-semibold text-gray-600" x-text="card.title"></h3>
@@ -437,10 +444,10 @@
                      <div class="w-full">
                         <textarea x-data="{ 
                         resize () { 
-                        $el.style.height = '0px'; 
-                        $el.style.height = $el.scrollHeight + 'px' 
+                           $el.style.height = '0px'; 
+                           $el.style.height = $el.scrollHeight + 'px' 
                         } 
-                        }" x-init="resize()" @input="resize()" @change="resize()" @keydown.enter="post()" type="text"
+                        }" x-init="resize()" @input="resize()" @focus="resize()" @blur="resize()" @keydown.enter="submitPrompt(); prompt=''; $el.blur(); resize()" type="text"
                         id="prompt" x-model="prompt" placeholder="Ask me anything..."
                         class="flex w-full scrollbar-thin h-auto min-h-[36px] max-h-[200px] px-3 py-2 bg-white focus:outline-none focus:ring-0 resize-none"></textarea>
                      </div>
@@ -518,13 +525,13 @@
                            <div class="flex items-center gap-2">
                               <!-- enhance prompt -->
                               <button x-tooltip="Enhance prompt"
-                                 class="btn btn-circle border-transparent ring-transparent"><i
+                                 class="btn btn-circle border-transparent ring-transparent w-9 h-8"><i
                                  data-lucide="stars" class="w-4 h-4"></i></button>
                               <!-- generate -->
                               <button x-tooltip="Generate/Stop (ctrl+enter)"
-                                 class="btn btn-black btn-circle ring-transparent"
+                                 class="btn btn-black btn-circle ring-transparent w-9 h-9"
                                  :class="{'bg-neutral-100': isLoading}"
-                                 @click="isLoading = !isLoading; console.log(api.get('103.43.54.123'))">
+                                 @click="submitPrompt()">
                               <i data-lucide="arrow-up" x-show="!isLoading" class="!stroke-white"></i>
                               <i data-lucide="loader" x-show="isLoading"
                                  class="animate-spin !stroke-neutral-800"></i>
