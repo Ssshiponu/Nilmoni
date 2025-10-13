@@ -383,27 +383,24 @@ function main() {
             });
 
             setTimeout(async () => {
-
-                this.api.HTTPget('chat/?prompt=' + promptToSend).then(message => {
-                    this.isTyping = true;
-                    this.isLoading = false;
-                    console.log(message);
-                    const messageParts = message.text.split(' ');
-                    const uuid = this.addAssistantMessage(messageParts[0]);
-                    let i=1;
-                    const interval = setInterval(() => {
-                        const part = messageParts[i];
-                        if (part === undefined) {
-                            this.isTyping = false;
-                            clearInterval(interval);
-                            return;
-                        }
-                        // append message
-                        this.addAssistantMessage(' ' + part, uuid);
-                        i++;
-                    }, 50);
-                });
-            }, 100);
+                this.isTyping = true;
+                this.isLoading = false;
+                const message = "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Maxime exercitationem qui recusandae hic distinctio veniam iusto accusantium rerum sequi, molestiae praesentium expedita fuga aut nobis delectus suscipit id ut cupiditate sint nemo reprehenderit? Illum cumque cupiditate corporis nisi et quo ratione, nam atque ut quaerat facere nostrum illo quod expedita deserunt quos voluptatibus modi hic natus soluta, maiores distinctio impedit accusantium? Sequi maxime quae inventore ut repellendus consectetur quaerat quisquam velit quasi, corrupti voluptatum exercitationem, tempora temporibus obcaecati perferendis illo saepe nam at, possimus asperiores voluptate numquam tempore. Vitae, quae ipsa. Voluptatibus delectus voluptas suscipit molestias maiores sunt est ea."
+                const messageParts = message.split(' ');
+                const uuid = this.addAssistantMessage(messageParts[0]);
+                let i=1;
+                const interval = setInterval(() => {
+                    const part = messageParts[i];
+                    if (part === undefined) {
+                        this.isTyping = false;
+                        clearInterval(interval);
+                        return;
+                    }
+                    // append message
+                    this.addAssistantMessage(' ' + part, uuid);
+                    i++;
+                }, 50);
+            }, 1000);
         },
     }
 }
