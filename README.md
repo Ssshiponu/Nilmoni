@@ -1,12 +1,12 @@
-# Alpine ai
+# Nilmoni
 
-Alpine AI is a free and open source frontend for ai chatbot created with alpinejs and tailwindcss.
+Nilmoni is a free and open source frontend for ai chatbot created with alpinejs and tailwindcss.
 
 ## Demo
 
-[Click here](https://alpine-ai.netlify.app/)
+[Click here](https://nilmoni.netlify.app/)
 
-![Alpine AI screenshot](https://alpine-ai.netlify.app/assets/screenshot.png)
+![Nilmoni frontend screenshot](https://nilmoni.netlify.app/assets/screenshot.png)
 
 ## Contributing
 
