@@ -154,7 +154,7 @@
                               <div @click="modal = false" class="btn rounded-full">
                                  Cancel
                               </div>
-                              <div @click="modal = false" class="btn btn-black rounded-full">
+                              <div @click="modal = false; window.toast('Chat renamed!', { type: 'success' })" class="btn btn-black rounded-full">
                                  Rename
                               </div>
                            </div>
@@ -541,44 +541,43 @@
                      x-data="{
                            toastHovered: false
                      }"
-                     x-init="
+                     x-init=" () => {
+                        if(position.includes('bottom')){
+                           $el.firstElementChild.classList.add('toast-bottom');
+                           $el.firstElementChild.classList.add('opacity-0', 'translate-y-full');
+                        } else {
+                           $el.firstElementChild.classList.add('opacity-0', '-translate-y-full');
+                        }
+                        setTimeout(function(){
                            
-                           if(position.includes('bottom')){
-                              $el.firstElementChild.classList.add('toast-bottom');
-                              $el.firstElementChild.classList.add('opacity-0', 'translate-y-full');
-                           } else {
-                              $el.firstElementChild.classList.add('opacity-0', '-translate-y-full');
-                           }
                            setTimeout(function(){
-                              
-                              setTimeout(function(){
-                                 if(position.includes('bottom')){
-                                       $el.firstElementChild.classList.remove('opacity-0', 'translate-y-full');
-                                 } else {
-                                       $el.firstElementChild.classList.remove('opacity-0', '-translate-y-full');
-                                 }
-                                 $el.firstElementChild.classList.add('opacity-100', 'translate-y-0');
+                              if(position.includes('bottom')){
+                                    $el.firstElementChild.classList.remove('opacity-0', 'translate-y-full');
+                              } else {
+                                    $el.firstElementChild.classList.remove('opacity-0', '-translate-y-full');
+                              }
+                              $el.firstElementChild.classList.add('opacity-100', 'translate-y-0');
 
-                                 setTimeout(function(){
-                                       stackToasts();
-                                 }, 10);
-                              }, 5);
-                           }, 50);
-         
-                           setTimeout(function(){
                               setTimeout(function(){
-                                 $el.firstElementChild.classList.remove('opacity-100');
-                                 $el.firstElementChild.classList.add('opacity-0');
-                                 if(toasts.length == 1){
-                                       $el.firstElementChild.classList.remove('translate-y-0');
-                                       $el.firstElementChild.classList.add('-translate-y-full');
-                                 }
-                                 setTimeout(function(){
-                                       deleteToastWithId(toast.id)
-                                 }, 300);
-                              }, 5);
-                           }, 4000); 
-                     "
+                                    stackToasts();
+                              }, 10);
+                           }, 5);
+                        }, 50);
+      
+                        setTimeout(function(){
+                           setTimeout(function(){
+                              $el.firstElementChild.classList.remove('opacity-100');
+                              $el.firstElementChild.classList.add('opacity-0');
+                              if(toasts.length == 1){
+                                    $el.firstElementChild.classList.remove('translate-y-0');
+                                    $el.firstElementChild.classList.add('-translate-y-full');
+                              }
+                              setTimeout(function(){
+                                    deleteToastWithId(toast.id)
+                              }, 300);
+                           }, 5);
+                        }, 4000);
+                     }"
                      @mouseover="toastHovered=true"
                      @mouseout="toastHovered=false"
                      class="absolute w-full duration-300 ease-out select-none sm:max-w-xs"
@@ -780,7 +779,7 @@
                               </div>
                               <div x-show="message.role == 'user'" class="flex items-end gap-2">
                                  <div
-                                    class="max-w-lg inline-block bg-gray-100 py-2 px-4 rounded-[18px] rounded-tl-sm font-sans">
+                                    class="max-w-lg inline-block bg-gray-100 py-2 px-4 rounded-[18px] rounded-tl-sm font-sans mr-6">
                                     <p x-text="message.content"></p>
                                  </div>
                                  <div class="flex items-center justify-end" x-show="currentMessages().filter(m => m.role === 'user')[-1]?.id === message.id">
@@ -820,17 +819,18 @@
                   </div>
                </div>
                <!-- input container -->
-               <div
+               <div x-data="{ 
+                     resize () { 
+                        const field = this.$refs.promptField;
+                        field.style.height = '0px'; 
+                        field.style.height = field.scrollHeight + 'px' 
+                     } 
+                  }"
                   class="input-container-gradient w-full p-3 pt-8 max-w-[48rem] mx-auto absolute bottom-0 left-1/2 -translate-x-1/2">
                   <div
                      class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-neutral-300 rounded-3xl p-3 w-full flex flex-col gap-2">
                      <div class="w-full">
-                        <textarea x-data="{ 
-                        resize () { 
-                           $el.style.height = '0px'; 
-                           $el.style.height = $el.scrollHeight + 'px' 
-                        } 
-                        }" x-init="resize()" @input="resize()" @focus="resize()" @blur="resize()" @keydown.enter="submitPrompt(); prompt=''; $el.blur(); resize()" type="text"
+                        <textarea x-ref="promptField" x-init="resize()" @input="resize()" @focus="resize()" @blur="resize()" @keydown.enter="submitPrompt(); prompt=''; $el.blur(); resize()" @click="$refs.generateButton && resize()" type="text"
                         id="prompt" x-model="prompt" placeholder="Ask me anything..."
                         class="flex w-full scrollbar-thin h-auto min-h-[36px] max-h-[200px] px-3 py-2 bg-white focus:outline-none focus:ring-0 resize-none"></textarea>
                      </div>
@@ -913,12 +913,16 @@
                                  data-lucide="stars" class="w-4 h-4"></i></button>
                               <!-- generate -->
                               <button x-tooltip="Generate/Stop (ctrl+enter)"
+                                 x-ref="generateButton"
+                                 id="generateButton"
                                  class="btn btn-black btn-circle ring-transparent w-9 h-9"
-                                 :class="{'bg-neutral-100': isLoading}"
-                                 @click="submitPrompt()">
-                              <i data-lucide="arrow-up" x-show="!isLoading" class="!stroke-white"></i>
+                                 :class="{'bg-neutral-100': isLoading || isTyping}"
+                                 @click="submitPrompt();">
+                              <i data-lucide="arrow-up" x-show="!isLoading && !isTyping" class="!stroke-white"></i>
                               <i data-lucide="loader" x-show="isLoading"
                                  class="animate-spin !stroke-neutral-800"></i>
+                              <i data-lucide="square" x-show="isTyping"
+                                 class="!stroke-red-600 w-4 h-4"></i>
                               </button>
                            </div>
                         </div>

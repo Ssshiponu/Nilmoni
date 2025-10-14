@@ -376,10 +376,10 @@ function main() {
             this.selectedTool = null;
 
             this.isLoading = true;
-
             this.$nextTick(() => {
                 this.scrollToBottom();
                 this.prompt = '';
+                document.querySelector('#prompt').focus();
             });
 
             setTimeout(async () => {
@@ -396,11 +396,15 @@ function main() {
                         clearInterval(interval);
                         return;
                     }
+                    document.querySelector("#generateButton").addEventListener('click', () => {
+                        this.isTyping = false;
+                        clearInterval(interval);
+                    });
                     // append message
                     this.addAssistantMessage(' ' + part, uuid);
                     i++;
                 }, 50);
-            }, 1000);
+            }, 1500);
         },
     }
 }
