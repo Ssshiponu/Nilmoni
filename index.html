@@ -828,31 +828,45 @@
                   }"
                   class="input-container-gradient w-full p-3 pt-8 max-w-[48rem] mx-auto absolute bottom-0 left-1/2 -translate-x-1/2">
                   <div
-                     class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-neutral-300 rounded-3xl p-3 w-full flex flex-col gap-2">
-                     <div class="w-full">
-                        <textarea x-ref="promptField" x-init="resize()" @input="resize()" @focus="resize()" @blur="resize()" @keydown.enter="submitPrompt(); prompt=''; $el.blur(); resize()" @click="$refs.generateButton && resize()" type="text"
-                        id="prompt" x-model="prompt" placeholder="Ask me anything..."
-                        class="flex w-full scrollbar-thin h-auto min-h-[36px] max-h-[200px] px-3 py-2 bg-white focus:outline-none focus:ring-0 resize-none"></textarea>
-                     </div>
-                     <div class="flex flex-col">
-                        <div class="flex py-1">
+                     class="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-neutral-300 rounded-3xl p-3 w-full flex flex-col">
+                        <div class="flex">
                            <!-- files preview -->
                            <div class="flex flex-wrap items-center gap-1">
                               <template x-for="(f, i) in files" :key="f.id">
                                  <div x-init="lucide.createIcons()"
-                                    class="flex items-center gap-1 bg-neutral-100 text-xs text-neutral-500 rounded-full px-2 mb-1">
-                                    <div class="flex items-center gap-2">
-                                       <i data-lucide="file" class="w-4 h-4"></i>
-                                       <span x-text="f.name" class="max-w-[160px] truncate"></span>
-                                       <button type="button" @click="removeFile(i)" class="ml-1"
-                                          aria-label="Remove file">
-                                       <span class="text-neutral-500 text-xl">&times;</span>
-                                       </button>
+                                    class="h-12 w-48 overflow-hidden bg-neutral-50 border border-neutral-200 text-neutral-900 rounded-xl">
+                                    <div class="flex gap-2 h-full w-full">
+                                       <div class="aspect-square h-full flex items-center justify-center" :class="getFileColor(f.file.type.split('/')[1])">
+                                          <template x-if="f.file.type.split('/')[0] == 'image'">
+                                             <img :src="URL.createObjectURL(f.file)" alt="" class="w-full h-full object-cover">
+                                          </template>
+                                          <template x-if="f.file.type.split('/')[0] != 'image'">
+                                             <i :data-lucide="getFileIcon(f.file.type.split('/')[1])" class="w-6 h-6 stroke-white"></i>
+
+                                          </template>
+                                       </div>
+                                       <div class="flex-1 flex flex-col justify-center">
+                                          <span x-text="f.name" class="max-w-[100px] text-sm truncate"></span>
+                                          <span x-text="f.file.size" class="text-xs text-neutral-500"></span>
+                                       </div>
+                                       <div>
+                                          <button type="button" @click="removeFile(i)" class="p-3 w-5 h-5 flex items-center justify-center text-neutral-500  hover:text-red-500"
+                                             aria-label="Remove file">
+                                             <span class="text-xl">&times;</span>
+                                          </button>
+                                       </div>
                                     </div>
                                  </div>
                               </template>
                            </div>
                         </div>
+                     <div class="w-full mb-2">
+                        <textarea x-ref="promptField" x-init="resize()" @input="resize()" @focus="resize()" @blur="resize()" @keydown.enter="submitPrompt(); prompt=''; $el.blur(); resize()" @click="$refs.generateButton && resize()" type="text"
+                        id="prompt" x-model="prompt" placeholder="Ask me anything..."
+                        class="flex w-full scrollbar-thin h-auto min-h-[36px] max-h-[200px] px-3 py-2 bg-white focus:outline-none focus:ring-0 resize-none"></textarea>
+                     </div>
+                     <div class="flex flex-col">
+                        
                         <div class="flex items-end justify-between">
                            <div class="flex gap-3">
                               <div class="flex items-center gap-2 relative">

@@ -351,7 +351,8 @@ function main() {
                 if (this.files.length >= 3) {this.modal=true; this.modalContent='upload-alert'; return;};
                 const isImage = f.type.startsWith('image/');
                 const url = isImage ? URL.createObjectURL(f) : null;
-                this.files.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2), file: f, name: f.name, url, isImage });
+                const name = f.name.length > 20 ? f.name.substring(0, 17) + '...' : f.name;
+                this.files.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2), file: f, name: name, url, isImage });
             }
             // reset input so choosing the same file again works
             event.target.value = '';
@@ -421,4 +422,90 @@ function replyActions() {
             }, 3000);
         }
     }
+}
+
+
+function getFileColor(fileType) {
+  switch (fileType.toLowerCase()) {
+    case 'pdf':
+      return 'bg-red-500'; // Example: Red for PDF
+    case 'doc':
+    case 'docx':
+      return 'bg-blue-500'; // Example: Blue for Word documents
+    case 'xls':
+    case 'xlsx':
+      return 'bg-green-500'; // Example: Green for Excel spreadsheets
+    case 'ppt':
+    case 'pptx':
+      return 'bg-orange-500'; // Example: Orange for PowerPoint presentations
+    case 'jpg':
+    case 'jpeg':
+    case 'png':
+    case 'gif':
+      return 'bg-purple-500'; // Example: Purple for image files
+    case 'zip':
+    case 'rar':
+      return 'bg-gray-500'; // Example: Gray for archive files
+    case 'txt':
+      return 'bg-yellow-500'; // Example: Yellow for text files
+    case 'js':
+    case 'html':
+    case 'css':
+      return 'bg-indigo-500'; // Example: Indigo for code files
+    default:
+      return 'bg-gray-400'; // Default background color for unknown file types
+  }
+}
+
+function getFileIcon(fileType) {
+  // Use a map for a clean and efficient lookup.
+  const iconMap = {
+    // Documents and text files
+    'pdf': 'file-text',
+    'doc': 'file-text',
+    'docx': 'file-text',
+    'txt': 'file-text',
+    'md': 'file-text',
+    'csv': 'file-spreadsheet',
+    'xls': 'file-spreadsheet',
+    'xlsx': 'file-spreadsheet',
+
+    // Code and developer files
+    'js': 'file-code',
+    'jsx': 'file-code',
+    'ts': 'file-code',
+    'tsx': 'file-code',
+    'json': 'file-json',
+    'html': 'file-code',
+    'css': 'file-code',
+    'scss': 'file-code',
+    'py': 'file-code',
+    'php': 'file-code',
+    'sh': 'file-terminal',
+
+    // Images
+    'jpg': 'file-image',
+    'jpeg': 'file-image',
+    'png': 'file-image',
+    'gif': 'file-image',
+    'svg': 'file-image',
+
+    // Audio and video
+    'mp3': 'file-music',
+    'wav': 'file-music',
+    'mp4': 'file-video',
+    'mov': 'file-video',
+
+    // Compressed archives
+    'zip': 'file-archive',
+    'rar': 'file-archive',
+    'tar': 'file-archive',
+    
+    // Default for unrecognized files
+    'default': 'file'
+  };
+
+  const type = fileType.toLowerCase();
+
+  return iconMap[type] || iconMap['default'];
 }
